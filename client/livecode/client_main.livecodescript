@@ -2,12 +2,17 @@
 -- SOURCE OF TRUTH: edit this file, never only the stack. Dev.NewVersion (LIB_DEV/tools/xtalk/dev_version.livecodescript)
 -- puts it into each new TTRPG_Client_dev_<stamp> stack. Written by Opus via the xTalk MCP Bridge, 15 Nov 2026.
 -- Party data: the custom property cPartyText of this stack, one [Name] section a player
--- (look=, color=r,g,b, skills=, weapons=, items=, spells= with | between entries, then face= and 16 rows of 0/1).
+-- (look=, color=r,g,b, dex=+n, skills=, weapons=, items=, spells= with | between entries,
+-- magic= and injured= as part:what|part:what for the stick figure (parts: head, body, left arm, right arm,
+-- left leg, right leg), then face= and 16 rows of 0/1).
+-- Who acts (owner, 15 Nov): the scene mode decides. explore = the player's choice (click a face in the party
+-- strip); combat = d20 + Dexterity initiative; talk = d20 + the better of Persuasion and Deception.
+-- The engine (the Studio) will set the mode; until then /mode combat|talk|explore.
 -- Commands typed in Player Input: /llm text (to Claude, saved in OXT-BEYOND/sessions/llm_inbox.txt),
--- /dm text (puts text in the DM field), /clear (saves the log, then clears it), /help.
+-- /x xtalk, /mode, /dm text (puts text in the DM field), /clear (saves the log, then clears it), /help.
 -- Never name this stack in code (its name changes every version): use this stack.
 constant kSessions = "//wsl$/Ubuntu/home/igame3d/projects/OXT-BEYOND/sessions/"
-local sParty, sCount, sTurn, sKind
+local sParty, sCount, sTurn, sKind, sMode, sOrder, sOrderPos, sRound
 
 on openStack
    Client.Init
@@ -26,9 +31,160 @@ command Client.Init
    lock messages   -- menuHistory would send menuPick
    set the menuHistory of button "ListTabs" of this stack to 1
    unlock messages
+   put "explore" into sMode
+   put empty into sOrder
    Client.DrawParty
    Client.ShowPlayer
 end Client.Init
+
+-- a click on a face (or a name) in the party strip: in explore mode, that player acts next
+on mouseUp pButton
+   local tName
+   put the short name of the target into tName
+   if tName begins with "Face_" or tName begins with "FaceName_" then
+      set the itemDelimiter to "_"
+      Client.ChooseActor item 2 of tName
+   end if
+   pass mouseUp
+end mouseUp
+
+command Client.ChooseActor pIndex
+   if pIndex is not an integer or pIndex < 1 or pIndex > sCount then exit Client.ChooseActor
+   if sMode is not "explore" then
+      Client.Log "(In " & sMode & " the rolled order decides who acts; Next Turn follows it.)"
+      exit Client.ChooseActor
+   end if
+   put pIndex into sTurn
+   Client.Log "-- " & sParty[sTurn]["name"] & " acts --"
+   Client.ShowPlayer
+end Client.ChooseActor
+
+-- explore | combat | talk: combat and talk roll the order (d20 + bonus), explore leaves it to the player
+command Client.SetMode pMode
+   local i, tRolls, tLine, tBonus, tList, tWhat
+   if pMode is not among the items of "explore,combat,talk" then
+      Client.Log "Modes: explore (click a face to choose who acts), combat (d20 + Dexterity), talk (d20 + Persuasion or Deception)"
+      exit Client.SetMode
+   end if
+   put pMode into sMode
+   put empty into sOrder
+   put 1 into sRound
+   if pMode is "explore" then
+      Client.Log "-- Exploring: click a face to choose who acts --"
+   else
+      repeat with i = 1 to sCount
+         if pMode is "combat" then
+            put Client.Bonus(i, "dex") into tBonus
+         else
+            put max(Client.Bonus(i, "Persuasion"), Client.Bonus(i, "Deception")) into tBonus
+         end if
+         put (random(20) + tBonus) & comma & i & return after tRolls
+      end repeat
+      sort lines of tRolls descending numeric by item 1 of each
+      repeat for each line tLine in tRolls
+         put item 2 of tLine & comma after sOrder
+         put sParty[item 2 of tLine]["name"] && item 1 of tLine & ", " after tList
+      end repeat
+      delete char -1 of sOrder
+      delete char -2 to -1 of tList
+      if pMode is "combat" then
+         put "Combat! Initiative (d20 + Dexterity): " into tWhat
+      else
+         put "Talk. Order (d20 + Persuasion or Deception): " into tWhat
+      end if
+      Client.Log "-- " & tWhat & tList & " --"
+      put 1 into sOrderPos
+      put item 1 of sOrder into sTurn
+      Client.Log "-- " & sParty[sTurn]["name"] & "'s turn --"
+   end if
+   Client.ShowPlayer
+end Client.SetMode
+
+-- a player's bonus: "dex" (the dex= line) or a skill's (+n after its name in skills=); 0 when none
+function Client.Bonus pPlayer, pWhat
+   local tItem
+   if pWhat is "dex" then
+      if sParty[pPlayer]["dex"] is a number then return sParty[pPlayer]["dex"] + 0
+      return 0
+   end if
+   set the itemDelimiter to "|"
+   repeat for each item tItem in sParty[pPlayer]["skills"]
+      if word 1 to -2 of tItem is pWhat and word -1 of tItem is a number then return word -1 of tItem + 0
+   end repeat
+   return 0
+end Client.Bonus
+
+-- what a part of the body carries: the text after "part:" in magic= or injured=, empty when nothing
+function Client.PartNote pPlayer, pKey, pPart
+   local tItem
+   set the itemDelimiter to "|"
+   repeat for each item tItem in sParty[pPlayer][pKey]
+      if tItem begins with pPart & ":" then return char (the number of chars of pPart) + 2 to -1 of tItem
+   end repeat
+   return empty
+end Client.PartNote
+
+-- the stick figure of whoever acts (in place of the big portrait, owner 15 Nov): grey, purple where a
+-- magic item is worn, red where injured, pink for both; the tooltip of a part says what is there
+command Client.DrawFigure
+   local tParts, tPart, tName, tMagic, tHurt, tColor, tTip, i
+   put "head|oval|40,98,64,122" & return & "body|line|52,122 52,170" & return & \
+         "left arm|line|52,132 30,160" & return & "right arm|line|52,132 74,160" & return & \
+         "left leg|line|52,170 34,214" & return & "right leg|line|52,170 70,214" into tParts
+   set the defaultStack to the short name of this stack
+   lock screen
+   lock messages
+   repeat with i = the number of controls of this card down to 1
+      if the short name of control i of this card begins with "Fig_" then delete control i of this card
+   end repeat
+   set the itemDelimiter to "|"
+   repeat for each line tPart in tParts
+      put "Fig_" & item 1 of tPart into tName
+      put Client.PartNote(sTurn, "magic", item 1 of tPart) into tMagic
+      put Client.PartNote(sTurn, "injured", item 1 of tPart) into tHurt
+      if tMagic is not empty and tHurt is not empty then
+         put "255,110,200" into tColor
+      else if tMagic is not empty then
+         put "190,120,255" into tColor
+      else if tHurt is not empty then
+         put "230,60,60" into tColor
+      else
+         put "200,200,200" into tColor
+      end if
+      put item 1 of tPart into tTip
+      if tMagic is not empty then put tTip & ": " & tMagic & " (magic)" into tTip
+      if tHurt is not empty then put tTip & ", " & tHurt & " (injured)" into tTip
+      create graphic tName
+      if item 2 of tPart is "oval" then
+         set the style of graphic tName to "oval"
+         set the rect of graphic tName to item 3 of tPart
+         set the filled of graphic tName to false
+      else
+         set the style of graphic tName to "line"
+         set the points of graphic tName to replaceText(item 3 of tPart, " ", return)
+      end if
+      set the lineSize of graphic tName to 4
+      set the foregroundColor of graphic tName to tColor
+      set the tooltip of graphic tName to tTip
+   end repeat
+   unlock messages
+   unlock screen
+end Client.DrawFigure
+
+-- the scene mode line under the player's description
+command Client.ShowMode
+   local tNames, i
+   if there is not a field "SceneMode" of this stack then exit Client.ShowMode
+   if sMode is "explore" or sOrder is empty then
+      put "EXPLORING - click a face to choose who acts" into field "SceneMode" of this stack
+      exit Client.ShowMode
+   end if
+   repeat for each item i in sOrder
+      put sParty[i]["name"] & ", " after tNames
+   end repeat
+   delete char -2 to -1 of tNames
+   put toUpper(sMode) & " - round " & sRound & ": " & tNames into field "SceneMode" of this stack
+end Client.ShowMode
 
 command Client.LoadParty
    local tLine, tInFace, k
@@ -120,14 +276,14 @@ command Client.ShowPlayer
    local x
    set the defaultStack to the short name of this stack
    lock screen
-   Client.DrawFace "Portrait", sParty[sTurn]["face"], 8, sParty[sTurn]["color"]
-   set the topLeft of image "Portrait" to 12, 92
+   Client.DrawFigure
    put sParty[sTurn]["name"] into field "PlayerName"
    put sParty[sTurn]["look"] into field "PlayerLook"
    put 12 + (sTurn - 1) * 72 into x
    set the rect of graphic "TurnMark" to x + 1, 4, x + 71, 80
    set the foregroundColor of graphic "TurnMark" to sParty[sTurn]["color"]
    Client.ShowList sKind
+   Client.ShowMode
    unlock screen
 end Client.ShowPlayer
 
@@ -188,9 +344,22 @@ on mouseDoubleUp pButton
    pass mouseDoubleUp
 end mouseDoubleUp
 
+-- Next Turn: in combat and talk the rolled order (a new round after the last), in explore the next face
 command Client.NextTurn
-   add 1 to sTurn
-   if sTurn > sCount then put 1 into sTurn
+   if sMode is "explore" or sOrder is empty then
+      add 1 to sTurn
+      if sTurn > sCount then
+         put 1 into sTurn
+      end if
+   else
+      add 1 to sOrderPos
+      if sOrderPos > the number of items of sOrder then
+         put 1 into sOrderPos
+         add 1 to sRound
+         Client.Log "-- Round " & sRound & " --"
+      end if
+      put item sOrderPos of sOrder into sTurn
+   end if
    Client.Log "-- " & sParty[sTurn]["name"] & "'s turn --"
    Client.ShowPlayer
 end Client.NextTurn
@@ -227,8 +396,11 @@ command Client.Command pLine
       case "/x"
          Client.RunXTalk tRest
          break
+      case "/mode"
+         Client.SetMode word 1 of tRest
+         break
       default
-         Client.Log "Commands: /llm text (to Claude)  /x xtalk (runs it, like the Message Box)  /dm text  /clear (saves the log first)  /help"
+         Client.Log "Commands: /llm text (to Claude)  /x xtalk (runs it, like the Message Box)  /mode explore|combat|talk  /dm text  /clear (saves the log first)  /help"
    end switch
 end Client.Command
 
