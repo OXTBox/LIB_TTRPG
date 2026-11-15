@@ -38,3 +38,21 @@ the replies themselves before drawing anything from a number.
    Voices = Same as DM** (one model in memory, not two). That pairing has not been measured yet.
 2. A later option, if wanted: a "Scene maker" model choice. qwen makes the scene (once, about 16 s),
    then is unloaded and gemma plays the turns. That needs a load/unload in the middle of New Scene.
+
+## Self-play: a model plays the player (15 Nov)
+
+`python3 ref/ttrpg_ref.py selfplay "a flooded crypt under a chapel"`: gemma-2-2b as DM, Voices and
+player, 20 turns, about 40 s of calls (player 0.4 s, referee 0.5 s, narrator 0.7 s a call). Transcript:
+`work/selfplay/2026-11-15_103630_flooded_crypt.txt`.
+
+| Seen | |
+|---|---|
+| The player model plays well | curious, varied, never repeated itself word for word, put speech in quotes, used the character's name |
+| Clues | all 4 found, one at a time, at turns 3, 7, 8, 10 |
+| Referee | look 13, do 4, talk 3: all sensible but one (below) |
+| Narration repeats | none flagged |
+| **Nothing after the last clue** | turns 11 to 20: the player keeps examining footprints and the inscription, nothing happens. The scene has no ending and no next beat once its clues are spent |
+| **The secret never came up** | the player asked Elder Elias plain questions; it never used the words the press rule waits for (truth, hiding, secret...). No roll, so 0 secrets revealed |
+| A false risky roll | "I run my fingers along the statues" rolled against 10: the risky-verb list matched "run" |
+| The narrator slips into third person | "Wren focuses... she sees" (turns 8, 10, 19), and gives the player a gender, despite "you" in the prompt |
+| The truth stays vague | "the flooding isn't just a collapsed roof": the clues (an inscription, a prayer, footprints) never add up to it (weak spot 4 again, gemma as scene maker) |
