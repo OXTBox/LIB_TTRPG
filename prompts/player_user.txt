@@ -1,0 +1,6 @@
+The scene: {opening}
+Characters here: {who}
+What you have found out: {known}
+The last moments: {recent}
+
+What do you do?

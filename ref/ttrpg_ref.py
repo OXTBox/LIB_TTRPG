@@ -9,6 +9,7 @@ steps. Tune here first (fast), then carry the change over.
     python3 ttrpg_ref.py unload                          unload what this tool loaded
     python3 ttrpg_ref.py play  "a flooded crypt under a chapel" [--dm M] [--voices M]
     python3 ttrpg_ref.py test  [--dm M] [--voices M]     the owner's test, steps 2 to 4 and 6, scripted
+    python3 ttrpg_ref.py selfplay ["idea"] [--player M] [--turns N]   a model plays the player; transcript + counts
 
 In play: type what your character does. /r regenerate the last answer, /npc <one line> add a
 scene character, /who, /notes (the DM's hidden notes), /end (end the scene), /quit.
@@ -29,7 +30,7 @@ DEFAULT_PLAYER = {'id': 'player', 'name': 'Wren', 'kind': 'constant', 'player': 
                   'wants': 'to know what happened here', 'secret': '',
                   'skills': {'Perception': 2, 'Investigation': 3, 'Arcana': 3, 'History': 1,
                              'Insight': 1, 'Athletics': 0, 'Stealth': 2, 'Persuasion': 1}}
-MAX_TOKENS = {'dm': 200, 'voice': 120, 'referee': 60, 'make': 500, 'summary': 120}
+MAX_TOKENS = {'dm': 200, 'voice': 120, 'referee': 60, 'make': 500, 'summary': 120, 'player': 60}
 KEEP_TURNS = 3          # exchanges shown to the models word for word
 SUMMARY_EVERY = 4       # fold older exchanges into the summary this often
 
@@ -556,12 +557,75 @@ def cmd_test(st):
     return fails
 
 
+def player_line(text, name):
+    """the player model's reply -> one action: its first line, no "Wren:" prefix, at most 2 sentences"""
+    text = re.sub(r'[*_#`]+', '', text).strip()
+    text = next((l.strip() for l in text.splitlines() if l.strip()), '')
+    text = re.sub(r'^\s*(%s|player|me|action)\s*:\s*' % re.escape(name), '', text, flags=re.I)
+    return ' '.join(sentences(text)[:2])[:240] or 'I look around.'
+
+
+def cmd_selfplay(st, idea, player_model, turns):
+    """A model plays the player for `turns` turns. It sees only what a player at the table would:
+    the opening, who is here, what it has found, the last exchanges; never the DM's notes.
+    Prints the transcript and counts; saves both to work/selfplay/."""
+    scene = st.new_scene(idea, st.constants())
+    p = st.player()
+    out = ['== %s ==  (DM %s, Voices %s, player %s)' % (scene['title'], st.dm, st.voices, player_model),
+           'DM: ' + scene['opening']]
+    kinds, found_at, repeats, last_dm, actions = {}, [], 0, '', []
+    for n in range(1, turns + 1):
+        known = ' '.join([c['fact'] for c in scene['clues'] if c['found']] +
+                         [c['name'] + ': ' + c['secret'] for c in scene['characters'] if c.get('revealed')]) or 'nothing yet'
+        skills = ', '.join('%s %+d' % (k, v) for k, v in p.get('skills', {}).items())
+        action = player_line(st.chat('player', player_model, fill('player', name=p['name'], look=p['look'], wants=p['wants'],
+                                                                     skills=skills),
+                                     fill('player_user', opening=scene['opening'], who=who_line(scene), known=known,
+                                          recent=recent_text(scene, p['name'])), temperature=0.9), p['name'])
+        before = sum(c['found'] for c in scene['clues'])
+        shown = st.turn(scene, action)
+        ruling = scene['turns'][-1]['ruling']
+        kinds[ruling['kind']] = kinds.get(ruling['kind'], 0) + 1
+        if sum(c['found'] for c in scene['clues']) > before:
+            found_at.append(n)
+        reply = scene['turns'][-1]['reply']
+        if scene['turns'][-1]['speaker'] == 'DM':
+            if last_dm and len(set(reply.lower().split()) & set(last_dm.lower().split())) > 0.6 * min(len(reply.split()), len(last_dm.split())):
+                repeats += 1
+            last_dm = reply
+        actions.append(action)
+        out.append('\n%d. %s: %s   <%s%s>' % (n, p['name'], action, ruling['kind'], ('/' + ruling['who']) if ruling.get('who') else ''))
+        for who, text in shown:
+            out.append(('   [%s]' % text) if who == 'roll' else ('   [%s: %s]' % (who, text)) if who in ('clue', 'secret') else '%s: %s' % (who, text))
+    nclues = len(scene['clues'])
+    counts = ['', '== counts ==',
+              'turns: %d; referee said: %s' % (turns, ', '.join('%s %d' % kv for kv in sorted(kinds.items()))),
+              'clues found: %d of %d, at turns %s' % (len(found_at), nclues, found_at or '-'),
+              'secrets revealed: %d' % sum(1 for c in scene['characters'] if c.get('revealed')),
+              'narration nearly repeating the one before: %d' % repeats,
+              'player repeated an action word for word: %d' % (len(actions) - len(set(actions))),
+              'summary: %s' % (scene['summary'] or '-'),
+              'truth (hidden): %s' % scene['truth']]
+    st.end_scene(scene)
+    text = '\n'.join(out + counts)
+    print(text)
+    folder = os.path.join(HERE, '..', 'work', 'selfplay')
+    os.makedirs(folder, exist_ok=True)
+    path = os.path.join(folder, time.strftime('%Y-%m-%d_%H%M%S_') + slug(scene['title']) + '.txt')
+    with open(path, 'w', encoding='utf-8') as f:
+        f.write(text + '\nlog: %s\n' % st.log_path)
+    print('\ntranscript: %s\nlog: %s' % (path, st.log_path))
+    return 0
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument('cmd', choices=['models', 'load', 'unload', 'play', 'test'])
+    ap.add_argument('cmd', choices=['models', 'load', 'unload', 'play', 'test', 'selfplay'])
     ap.add_argument('args', nargs='*')
     ap.add_argument('--dm', default='gemma-2-2b-it-abliterated')
     ap.add_argument('--voices', default=None)
+    ap.add_argument('--player', default=None, help='selfplay: the model playing the player (default: the DM model)')
+    ap.add_argument('--turns', type=int, default=20, help='selfplay: how many player turns')
     ap.add_argument('--data', default=os.path.join(HERE, '..', 'work', 'data'),
                     help='data folder (the stack uses LIB_DATA: Games/TTRPG)')
     a = ap.parse_args()
@@ -581,6 +645,8 @@ def main():
         st = Studio(os.path.abspath(a.data), dm, voices)
         if a.cmd == 'test':
             return cmd_test(st)
+        if a.cmd == 'selfplay':
+            return cmd_selfplay(st, ' '.join(a.args) or 'a flooded crypt under a chapel', a.player or dm, a.turns)
         cmd_play(st, ' '.join(a.args) or 'a flooded crypt under a chapel')
     return 0
 
