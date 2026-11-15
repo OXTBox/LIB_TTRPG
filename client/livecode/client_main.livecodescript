@@ -197,10 +197,38 @@ command Client.Command pLine
          Client.SaveLog
          put empty into field "Game Log" of this stack
          break
+      case "/x"
+         Client.RunXTalk tRest
+         break
       default
-         Client.Log "Commands: /llm text (to Claude)  /dm text  /clear (saves the log first)  /help"
+         Client.Log "Commands: /llm text (to Claude)  /x xtalk (runs it, like the Message Box)  /dm text  /clear (saves the log first)  /help"
    end switch
 end Client.Command
+
+-- /x: the Message Box in the chat (owner, 15 Nov). Statements run here, in the stack script, so they
+-- see its handlers and this stack's controls; `put x` with no container shows x in the log, and an
+-- expression alone ("/x the seconds") shows its value. Runs whatever is typed: the owner's own tool.
+command Client.RunXTalk pCode
+   local tOut, tErr, tDoErr, tKeepMsg
+   if pCode is empty then exit Client.RunXTalk
+   Client.Log "> " & pCode
+   put msg into tKeepMsg   -- the IDE's Message Box gets its text back afterwards
+   put empty into msg
+   try
+      do pCode
+      put msg into tOut
+   catch tDoErr
+      -- not a statement: try it as an expression; when that fails too, the statement's error says more
+      try
+         put value(pCode) into tOut
+      catch tErr
+         put "error: " & line (item 1 of line 1 of tDoErr) of the scriptExecutionErrors & " (" & item 1 of line 1 of tDoErr & ") near " & quote & item 4 of line 1 of tDoErr & quote into tOut
+      end try
+   end try
+   if the result is not empty and tOut is empty then put "result: " & the result into tOut
+   put tKeepMsg into msg
+   if tOut is not empty then Client.Log tOut
+end Client.RunXTalk
 
 command Client.Log pLine
    if field "Game Log" of this stack is not empty then put return after field "Game Log" of this stack
