@@ -28,3 +28,10 @@ Branch `ttrpg-studio-1` (LIB_TTRPG and LIB_TEST); nothing merged; all models unl
 
 ## Machine limits (owner)
 gemma-2-2b alone is comfortable. qwen-7B + a 2B pushed memory to 95%. 13B is out of reach. Ask before loading.
+
+## Player client (OXT-Beyond, 15 Nov)
+`client/livecode/client_main.livecodescript` is the code; dev stacks `client/TTRPG_Client_dev_<stamp>.oxtstack`
+(rule: memory xtalk-dev-stack-workflow). Session log: `~/projects/OXT-BEYOND/sessions/TTRPG_Client_log.txt`.
+Owner's ideas, to build when play shows the need: a scene strip at the top right (NPCs, monsters, treasure,
+16x16 faces like the party); companions/familiars beside their hero. The Studio should set the scene mode
+(explore/combat/talk) and fill the DM text.
