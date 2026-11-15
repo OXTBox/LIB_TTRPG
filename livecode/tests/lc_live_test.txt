@@ -1,0 +1,17 @@
+-- TTRPG Studio: the owner's test with REAL models, through the LiveCode engine (headless).
+-- Loads the models named on the first two lines below (ask the owner first), and leaves them
+-- loaded: unload after with  python3 ref/ttrpg_ref.py unload MODEL...
+-- Data and the session log go to LIB_TTRPG/work/live_lc (git-ignored).
+put "gemma-2-2b-it-abliterated" into tDM
+put "" into tVoices
+put "/home/igame3d/projects/LIB_TTRPG" into tRoot
+start using stack (tRoot & "/livecode/lib_ttrpg_lm.livecodescript")
+start using stack (tRoot & "/livecode/lib_ttrpg.livecodescript")
+TTRPG.Init empty, tRoot & "/work/live_lc"
+TTRPG.Prompts.Load tRoot & "/prompts"
+put the milliseconds into tT0
+put "LOAD: " & TTRPG.LM.LoadModels(tDM, tVoices) & cr into tLog
+if TTRPG.LM.DM() is empty then return tLog & "FAIL no model"
+put TTRPG.OwnerTest() & cr after tLog
+put "seconds: " & (the milliseconds - tT0) div 1000 & cr & "log: " & TTRPG.LM.LogPath() & cr after tLog
+return tLog

@@ -119,7 +119,7 @@ function TTRPG.LM.HTTP pPath, pBody, pTimeoutSec
    put "curl.exe" into tCurl
    if shell("command -v curl.exe") is empty then put "curl" into tCurl
    put lmTemp("reply") into tOut
-   put "cd /mnt/c 2>/dev/null; " & tCurl & " -sS -m " & pTimeoutSec into tCmd
+   put tCurl & " -sS -m " & pTimeoutSec into tCmd
    if pBody is not empty then
       put lmTemp("body") into tFile
       put textEncode(pBody, "UTF-8") into URL ("binfile:" & tFile)
@@ -128,6 +128,7 @@ function TTRPG.LM.HTTP pPath, pBody, pTimeoutSec
       put " </dev/null" after tCmd                 -- a Windows .exe must not eat the terminal's input
    end if
    put " " & sLM["url"] & pPath & " > '" & tOut & "' 2>&1" after tCmd
+   put "cd /mnt/c 2>/dev/null; " before tCmd     -- a Windows .exe wants a Windows folder; the pipe stays on curl
    get shell(tCmd)
    put textDecode(URL ("binfile:" & tOut), "UTF-8") into tData
    if tFile is not empty then delete file tFile
