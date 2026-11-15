@@ -1,0 +1,4 @@
+You invent one character for a tabletop role-playing scene.
+Scene: {place}
+Asked for: {ask}
+Fill in the form, one short phrase or sentence per field. "voice" is how they speak. "wants" is what they want right now. "secret" is something they hide.

@@ -1,0 +1,144 @@
+{
+ "clean_narration_max4": [
+  [
+   "**The water** rises. You see a door. What do you do?\n1. Open it\n2. Leave",
+   "The water rises. You see a door."
+  ],
+  [
+   "DM: You wade in. The cold bites.\n\n- Go north\n- Go south",
+   "You wade in. The cold bites."
+  ],
+  [
+   "You find nothing. Will you press on? The torch gutters. It is dark. One. Two. Three.",
+   "You find nothing. The torch gutters. It is dark. One."
+  ],
+  [
+   "The lid shifts. You could try the lever or the chain. Dust falls",
+   "The lid shifts. Dust falls"
+  ],
+  [
+   "Narrator: _Silence._ \"Who goes there?\" The echo dies.",
+   "Silence. The echo dies."
+  ],
+  [
+   "",
+   ""
+  ]
+ ],
+ "clean_speech": [
+  [
+   "Elias",
+   "Elias says aloud: I saw nothing. Nothing!",
+   "I saw nothing. Nothing!"
+  ],
+  [
+   "Mara",
+   "\"Leave this place.\" *she turns away* Now.",
+   "Leave this place. Now."
+  ],
+  [
+   "Gribbit",
+   "Gribbit: Pay. (he spits) Then cross. Or swim. Ha. More.",
+   "Pay. Then cross. Or swim."
+  ],
+  [
+   "Old Tom",
+   "  Coins first, friend.  ",
+   "Coins first, friend."
+  ]
+ ],
+ "sentences": [
+  [
+   "You stand here. \"Go!\" he said. Water drips... It is cold",
+   [
+    "You stand here.",
+    "\"Go!\"",
+    "he said.",
+    "Water drips...",
+    "It is cold"
+   ]
+  ],
+  [
+   "One.",
+   [
+    "One."
+   ]
+  ],
+  [
+   "",
+   []
+  ]
+ ],
+ "whole_sentences": [
+  [
+   "The water rises. You see a doo",
+   "The water rises."
+  ],
+  [
+   "No end at all",
+   "No end at all"
+  ],
+  [
+   "Done. \"Quite.\" And then",
+   "Done. \"Quite.\""
+  ]
+ ],
+ "slug": [
+  [
+   "The Goblin Toll Bridge",
+   "the_goblin_toll_bridge"
+  ],
+  [
+   "Élan  d'Or!",
+   "lan_d_or"
+  ],
+  [
+   "",
+   "x"
+  ]
+ ],
+ "name_words": [
+  [
+   "Elder Elias",
+   [
+    "elias"
+   ]
+  ],
+  [
+   "The Old Sexton",
+   [
+    "sexton"
+   ]
+  ],
+  [
+   "Gribbit",
+   [
+    "gribbit"
+   ]
+  ],
+  [
+   "Sister Mara Venn",
+   [
+    "mara",
+    "venn"
+   ]
+  ]
+ ],
+ "is_named": [
+  [
+   "Elder Elias",
+   "I ask Elias about the water",
+   true
+  ],
+  [
+   "Mara Venn",
+   "I look at the marsh",
+   false
+  ],
+  [
+   "Salty",
+   "salty, what do you see?",
+   true
+  ]
+ ]
+}
