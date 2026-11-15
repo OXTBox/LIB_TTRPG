@@ -1,0 +1,63 @@
+-- TTRPG Studio: the owner's test with a MOCK model (no LM Studio), plus the secrecy rule:
+-- at every narrator call, no clue that is not yet found is anywhere in the prompt.
+--   python3 -I ~/projects/LIB_BIT/editor/tests/run_headless.py LIB_TTRPG/livecode/tests/lc_mock_test.txt
+global gLeaks, gDMCalls, gMockReply
+put "/home/igame3d/projects/LIB_TTRPG" into tRoot
+start using stack (tRoot & "/livecode/lib_ttrpg_lm.livecodescript")
+start using stack (tRoot & "/livecode/lib_ttrpg.livecodescript")
+put "C:/LIB_MCP/ttrpg_mock_" & the milliseconds into tData
+create stack "ttrpg_mock"
+put "function TTRPG.Mock pRole, pSystem, pUser" & cr & \
+  "global gLeaks, gDMCalls, gMockReply" & cr & \
+  "put TTRPG.Scene() into tS" & cr & \
+  "repeat with i = 1 to the number of elements of tS[" & quote & "clues" & quote & "]" & cr & \
+  "  if tS[" & quote & "clues" & quote & "][i][" & quote & "found" & quote & "] is not " & quote & "true" & quote & " and (pSystem & pUser) contains tS[" & quote & "clues" & quote & "][i][" & quote & "fact" & quote & "] then put pRole && i & cr after gLeaks" & cr & \
+  "end repeat" & cr & \
+  "if pRole is " & quote & "dm" & quote & " then add 1 to gDMCalls" & cr & \
+  "return gMockReply[pRole]" & cr & \
+  "end TTRPG.Mock" into tScript
+set the script of stack "ttrpg_mock" to tScript
+put the result into tLog
+-- canned replies (form roles answer JSON)
+put "{" & quote & "title" & quote & ":" & quote & "The Drowned Bell" & quote & "," & quote & "truth" & quote & ":" & quote & "TRUTH-SECRET the sexton flooded it." & quote & "," & \
+  quote & "place" & quote & ":" & quote & "A flooded crypt." & quote & "," & quote & "happening" & quote & ":" & quote & "Water rises." & quote & "," & quote & "wrong" & quote & ":" & quote & "A bell rings underwater." & quote & "," & \
+  quote & "clues" & quote & ":[" & \
+  "{" & quote & "where" & quote & ":" & quote & "the walls" & quote & "," & quote & "skill" & quote & ":" & quote & "Investigation" & quote & "," & quote & "fact" & quote & ":" & quote & "FACT-ONE carvings of a bell." & quote & "}," & \
+  "{" & quote & "where" & quote & ":" & quote & "the altar" & quote & "," & quote & "skill" & quote & ":" & quote & "Perception" & quote & "," & quote & "fact" & quote & ":" & quote & "FACT-TWO wet keys." & quote & "}," & \
+  "{" & quote & "where" & quote & ":" & quote & "the water" & quote & "," & quote & "skill" & quote & ":" & quote & "Arcana" & quote & "," & quote & "fact" & quote & ":" & quote & "FACT-THREE it glows." & quote & "}]," & \
+  quote & "npc" & quote & ":{" & quote & "name" & quote & ":" & quote & "Sexton Mara" & quote & "," & quote & "look" & quote & ":" & quote & "soaked" & quote & "," & quote & "voice" & quote & ":" & quote & "nervous" & quote & "," & quote & "wants" & quote & ":" & quote & "to leave" & quote & "," & quote & "secret" & quote & ":" & quote & "MARA-SECRET opened the sluice" & quote & "}}" into tA["make"]
+put "{" & quote & "kind" & quote & ":" & quote & "look" & quote & "," & quote & "who" & quote & ":" & quote & "nobody" & quote & "," & quote & "spot" & quote & ":" & quote & "none" & quote & "," & quote & "skill" & quote & ":" & quote & "Investigation" & quote & "}" into tA["referee"]
+put "**Cold water** fills the crypt. Your lantern shakes. Shadows crawl on stone. A bell tolls below. What do you do?" & cr & "1. Run" into tA["dm"]
+put "Sexton Mara says: *she shivers* I saw nothing. (pause) Nothing at all." into tA["voice"]
+put "Wren searched the crypt and spoke with Mara." into tA["summary"]
+put tA into gMockReply
+set the randomSeed to 7
+TTRPG.Init empty, tData
+TTRPG.Prompts.Load tRoot & "/prompts"
+TTRPG.LM.Set "mock", the long id of stack "ttrpg_mock"
+TTRPG.LM.UseModels "mock-dm", "mock-voice"
+put 0 into gDMCalls
+put TTRPG.OwnerTest() & cr after tLog
+put "dm calls checked for leaks: " & gDMCalls & cr after tLog
+if gLeaks is empty then
+  put "PASS  no unfound clue in any prompt" & cr after tLog
+else
+  put "FAIL  leaks: " & gLeaks & cr after tLog
+end if
+-- the narrator must never see the truth or the character's secret
+put URL ("binfile:" & TTRPG.LM.LogPath()) into tL
+put 0 into tBad
+repeat for each line tLine in tL
+  if tLine contains (quote & "role" & quote & ":" & quote & "make") then next repeat   -- the scene maker invents them
+  if tLine contains "TRUTH-SECRET" then add 1 to tBad
+  if tLine contains "MARA-SECRET" and not (tLine contains (quote & "role" & quote & ":" & quote & "voice")) then add 1 to tBad
+end repeat
+if tBad is 0 then
+  put "PASS  truth never sent; the secret only to her own voice" & cr after tLog
+else
+  put "FAIL  " & tBad & " calls carried the truth or the secret" & cr after tLog
+end if
+put "log lines: " & the number of lines of tL & cr after tLog
+put "scene file: " & TTRPG.ScenePath() & cr after tLog
+put TTRPG.Notes() after tLog
+return tLog

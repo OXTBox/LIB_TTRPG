@@ -310,6 +310,13 @@ end TTRPG.LM.Chat
 private command lmSend
    local tBody, tErr
    put TTRPG.LM.Body(sReq, sReq["merged"]) into tBody
+   if sLM["mock"] is not empty then
+      -- tests with no model: the mock object answers TTRPG.Mock pRole, pSystem, pUser with a reply text
+      dispatch function "TTRPG.Mock" to sLM["mock"] with sReq["role"], sReq["system"], sReq["user"]
+      lmGot "{" & quote & "choices" & quote & ":[{" & quote & "message" & quote & ":{" & quote & "content" & quote & ":" & \
+            TTRPG.JSON.Quote(the result) & "}," & quote & "finish_reason" & quote & ":" & quote & "stop" & quote & "}]}", empty
+      exit lmSend
+   end if
    if not sLM["sync"] then
       try
          put tsNetPost(sReq["id"], sLM["url"] & "/v1/chat/completions", "Content-Type: application/json", \
