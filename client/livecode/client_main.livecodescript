@@ -141,25 +141,52 @@ command Client.ShowList pKind
    put tList into field "IntentList" of this stack
 end Client.ShowList
 
--- a click on the list: put what the player means to do into Player Input
+-- a click on the list: put what the player means to do into Player Input, to finish and send
 command Client.UseIntent pLine
-   local tWhat, tSay
-   put pLine into tWhat
-   if tWhat is empty or tWhat is "(none)" then exit Client.UseIntent
-   if sKind is "Skills" then
-      put word 1 to -2 of tWhat into tWhat
-      put "I use my " & tWhat & " skill to " into tSay
-   else if sKind is "Weapons" then
-      put "I attack with my " & tWhat & " " into tSay
-   else if sKind is "Items" then
-      put "I use my " & tWhat & " to " into tSay
-   else
-      put "I cast " & tWhat & " " into tSay
-   end if
+   local tSay
+   put Client.IntentText(pLine, false) into tSay
+   if tSay is empty then exit Client.UseIntent
    put tSay into field "Player Input" of this stack
    focus on field "Player Input" of this stack
    select after text of field "Player Input" of this stack
 end Client.UseIntent
+
+-- a double-click on the list: just do it (owner, 15 Nov), no trip back to the chat box
+command Client.DoIntent pLine
+   local tSay
+   put Client.IntentText(pLine, true) into tSay
+   if tSay is empty then exit Client.DoIntent
+   put empty into field "Player Input" of this stack
+   Client.Log sParty[sTurn]["name"] & ": " & tSay
+end Client.DoIntent
+
+-- what a list line says as an action: open-ended ("I use my Stealth skill to ") or whole ("I use my Stealth skill.")
+function Client.IntentText pLine, pWhole
+   local tWhat
+   put pLine into tWhat
+   if tWhat is empty or tWhat is "(none)" then return empty
+   if sKind is "Skills" then
+      put word 1 to -2 of tWhat into tWhat
+      if pWhole then return "I use my " & tWhat & " skill."
+      return "I use my " & tWhat & " skill to "
+   else if sKind is "Weapons" then
+      if pWhole then return "I attack with my " & tWhat & "."
+      return "I attack with my " & tWhat & " "
+   else if sKind is "Items" then
+      if pWhole then return "I use my " & tWhat & "."
+      return "I use my " & tWhat & " to "
+   end if
+   if pWhole then return "I cast " & tWhat & "."
+   return "I cast " & tWhat & " "
+end Client.IntentText
+
+-- double-clicks come up from the list field to here (its own script only has mouseUp)
+on mouseDoubleUp pButton
+   if the short name of the target is "IntentList" and pButton is 1 then
+      Client.DoIntent the value of the clickLine
+   end if
+   pass mouseDoubleUp
+end mouseDoubleUp
 
 command Client.NextTurn
    add 1 to sTurn
