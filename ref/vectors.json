@@ -140,5 +140,43 @@
    "salty, what do you see?",
    true
   ]
+ ],
+ "declared_skill": [
+  [
+   "I use Arcana to read the runes",
+   "Arcana"
+  ],
+  [
+   "Medicine: I check the body",
+   "Medicine"
+  ],
+  [
+   "using my Sleight of Hand, I lift the key",
+   "Sleight of Hand"
+  ],
+  [
+   "I look at the altar",
+   ""
+  ],
+  [
+   "I roll Survival on the tracks",
+   "Survival"
+  ],
+  [
+   "I tell her about history",
+   ""
+  ],
+  [
+   "I use animal handling to calm the dog",
+   "Animal Handling"
+  ],
+  [
+   "With a History check I recall the chapel",
+   "History"
+  ],
+  [
+   "I perceive nothing",
+   ""
+  ]
  ]
 }

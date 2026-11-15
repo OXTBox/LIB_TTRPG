@@ -6,7 +6,8 @@
 ##   LEFT    Models: DM and Voices option menus (Voices starts on "Same as DM"),
 ##           Refresh / Load / Unload, one status line.
 ##   MIDDLE  the Scene (title + opening), the chat log, the input (Return sends), "thinking...".
-##   RIGHT   Characters (click = edit; New, Delete, Keep after scene, Save), your character's sheet.
+##   RIGHT   Characters (click = edit; New, Delete, Keep after scene, Save), your character's sheet (18 skills).
+##   SKILLS  18 buttons over the input: a click starts the line "I use <skill>: " (the engine honours it).
 ##   TOP     New Scene, Add Character, Regenerate (Ctrl+R), DM Notes, End Scene, About.
 ##   Escape  pauses (rule 18): cancels a running call and shows the developer options.
 ## The libraries are found next to the stack (livecode/, or ../LIB_TTRPG/livecode/ from LIB_TEST);
@@ -148,6 +149,8 @@ on St.Click pName
       case "Resume"
          St.Resume
          break
+      default
+         if pName begins with "Skill:" then St.UseSkill char 7 to -1 of pName
    end switch
 end St.Click
 
@@ -358,6 +361,16 @@ on St.EndScene
    St.FillChars
 end St.EndScene
 
+-- a skill button: the line starts "I use <skill>: " (an earlier "I use ...: " is replaced), the rest is kept
+on St.UseSkill pSkill
+   local tLine
+   put field "Input" of card "Studio" into tLine
+   if matchText(tLine, "(?i)^\s*I use [A-Za-z ]+:\s*") then put replaceText(tLine, "(?i)^\s*I use [A-Za-z ]+:\s*", empty) into tLine
+   put "I use " & pSkill & ": " & tLine into field "Input" of card "Studio"
+   focus on field "Input" of card "Studio"
+   select after text of field "Input" of card "Studio"
+end St.UseSkill
+
 -------------------------------------------------------------------- the engine talks back
 
 on TTRPG.SceneReady
@@ -537,7 +550,7 @@ end St.CharDelete
 
 -------------------------------------------------------------------- your character
 
-constant kSkills = "Perception,Investigation,Arcana,History,Insight,Athletics,Stealth,Persuasion"
+constant kSkills = "Acrobatics,Animal Handling,Arcana,Athletics,Deception,History,Insight,Intimidation,Investigation,Medicine,Nature,Perception,Performance,Persuasion,Religion,Sleight of Hand,Stealth,Survival"
 
 on St.FillPlayer
    local tP, tSkill

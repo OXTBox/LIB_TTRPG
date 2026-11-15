@@ -51,6 +51,11 @@ put 150 into field "o_max_dm" of card "Studio" of stack "TTRPG_Studio"
 dispatch "St.Resume" to stack "TTRPG_Studio"
 put "after resume: max_dm " & TTRPG.Cfg.Get("max_dm") & ", pause hidden " & (not the visible of group "Pause" of card "Studio" of stack "TTRPG_Studio") & cr after tLog
 TTRPG.Scene.End empty
+put "Some words" into field "Input" of card "Studio" of stack "TTRPG_Studio"
+dispatch "St.Click" to stack "TTRPG_Studio" with "Skill:Medicine"
+dispatch "St.Click" to stack "TTRPG_Studio" with "Skill:Sleight of Hand"
+put "skill button: " & field "Input" of card "Studio" of stack "TTRPG_Studio" & cr after tLog
+put "skill buttons: " & (there is a button "skill_Survival" of card "Studio" of stack "TTRPG_Studio") & ", sheet Survival field: " & field "s_Survival" of card "Studio" of stack "TTRPG_Studio" & cr after tLog
 put "kept constant file: " & (there is a file Data.Path("Games", "TTRPG/characters/mara_the_bellringer.json")) & cr after tLog
 put "data folder used: " & Data.Root() & cr after tLog
 return tLog

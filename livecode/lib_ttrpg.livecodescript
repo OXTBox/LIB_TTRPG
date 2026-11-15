@@ -27,8 +27,8 @@ script "lib_ttrpg"
 local sUI, sDataDir, sPrompts, sCfg
 local sScene, sBusy, sT, sLastShown, sOpenTries
 
-constant kSkills = "Perception,Investigation,Arcana,History,Insight,Athletics,Stealth,Persuasion"
-constant kTalkSkills = "Insight,Persuasion"
+constant kSkills = "Acrobatics,Animal Handling,Arcana,Athletics,Deception,History,Insight,Intimidation,Investigation,Medicine,Nature,Perception,Performance,Persuasion,Religion,Sleight of Hand,Stealth,Survival"
+constant kTalkSkills = "Insight,Persuasion,Deception,Intimidation"
 constant kNameNoise = "the,a,an,of,old,young,elder,brother,sister,father,mother,sir,lady,lord,captain"
 constant kPressing = "(?i)persua|convinc|plead|press|insist|trust|lying|lie\b|truth|hiding|secret|insight|read (him|her|them)"
 constant kRisky = "(?i)\b(try|attempt|climb|jump|force|break|sneak|swim|lift|push|pull|pick|dodge|run|grab|throw|attack|hit|kick)"
@@ -173,8 +173,9 @@ function TTRPG.DefaultPlayer
    put "dry and curious" into tA["voice"]
    put "to know what happened here" into tA["wants"]
    put empty into tA["secret"]
-   put "2,3,3,1,1,0,2,1" into tBonus
-   repeat with tSkill = 1 to 8
+   -- the 18 skills of kSkills, in order (as DEFAULT_PLAYER in ttrpg_ref.py)
+   put "1,0,3,0,1,1,1,0,3,1,1,2,0,1,2,2,2,1" into tBonus
+   repeat with tSkill = 1 to 18
       put item tSkill of tBonus into tA["skills"][item tSkill of kSkills]
    end repeat
    return tA
@@ -215,7 +216,12 @@ function TTRPG.Player
    local tAll, i
    put TTRPG.Constants() into tAll
    repeat with i = 1 to the number of elements of tAll
-      if tAll[i]["player"] is "true" then return tAll[i]
+      if tAll[i]["player"] is "true" then
+         repeat for each item k in kSkills
+            if tAll[i]["skills"][k] is not a number then put 0 into tAll[i]["skills"][k]
+         end repeat
+         return tAll[i]
+      end if
    end repeat
    TTRPG.Character.Save TTRPG.DefaultPlayer()
    return TTRPG.DefaultPlayer()
@@ -594,10 +600,13 @@ end TTRPG.OnReferee
 
 -- What happens: the referee's form + code. The narrator only words it. Changes sScene's clues.
 function TTRPG.Rule pR, pAction, pPlayer
-   local tKind, tSkill, tWho, tNamed, i, tC, tRuling, tBonus, tOpen, tIdx, tMatched, tDC, tOk
+   local tKind, tSkill, tWho, tNamed, i, tC, tRuling, tBonus, tOpen, tIdx, tSpot, tBySkill, tDeclared, tMatched, tDC, tOk
    put pR["kind"] into tKind
    if tKind is not among the items of "talk,look,do" then put "do" into tKind
+   -- "I use Arcana ...": the player's choice is honoured over the referee's
+   put TTRPG.DeclaredSkill(pAction) into tDeclared
    put pR["skill"] into tSkill
+   if tDeclared is not empty then put tDeclared into tSkill
    if tSkill is not among the items of kSkills then put "Perception" into tSkill
    put 0 into tWho
    put 0 into tNamed
@@ -618,30 +627,42 @@ function TTRPG.Rule pR, pAction, pPlayer
       put "talk" into tKind
       put tNamed into tWho
    end if
+   if tKind is "talk" and tDeclared is not empty and tDeclared is not among the items of kTalkSkills and not (pAction contains quote) then
+      put "do" into tKind                             -- "I use Medicine on Mara's wound" is an action, not talk
+   end if
    if tKind is "talk" and tWho is 0 then put "do" into tKind
    put pPlayer["skills"][tSkill] into tBonus
    if tBonus is not a number then put 0 into tBonus
    put tKind into tRuling["kind"]
    put tSkill into tRuling["skill"]
+   if tDeclared is not empty then put "true" into tRuling["declared"]
    put 0 into tOpen
+   put 0 into tSpot
+   put 0 into tBySkill
    repeat with i = 1 to the number of elements of sScene["clues"]
       if sScene["clues"][i]["found"] is not "true" then
          if tOpen is 0 then put i into tOpen          -- the next open clue
-         if sScene["clues"][i]["id"] is pR["spot"] then put i into tIdx
+         if tSpot is 0 and sScene["clues"][i]["id"] is pR["spot"] then put i into tSpot
+         if tBySkill is 0 and tDeclared is not empty and sScene["clues"][i]["skill"] is tDeclared then put i into tBySkill
       end if
    end repeat
    switch
       case tKind is "talk"
-         put sScene["characters"][tWho]["id"] into tRuling["who"]
-         if tSkill is among the items of kTalkSkills and sScene["characters"][tWho]["secret"] is not empty \
-               and matchText(pAction, kPressing) then
+         put sScene["characters"][tWho] into tC
+         put tC["id"] into tRuling["who"]
+         -- pressing: a social skill named outright, or the words that mean pressing
+         if tC["secret"] is not empty and tC["revealed"] is not "true" and tSkill is among the items of kTalkSkills \
+               and (tDeclared is not empty or matchText(pAction, kPressing)) then
             get ttRoll(tRuling, tSkill, tBonus, 13)
          end if
          put empty into tRuling["result"]
          break
-      case tKind is "look" and tOpen > 0
-         put (tIdx is not empty) into tMatched
-         if not tMatched then put tOpen into tIdx      -- Lazy DM: the next clue turns up where the player looks
+      case tOpen > 0 and (tKind is "look" or tBySkill > 0)
+         -- a named skill opens its own clue, wherever the player is; else the spot; else (Lazy DM) the next clue
+         put tBySkill into tIdx
+         if tIdx is 0 then put tSpot into tIdx
+         put (tIdx > 0) into tMatched
+         if not tMatched then put tOpen into tIdx
          put sScene["clues"][tIdx] into tC
          if tMatched then
             put 8 into tDC
@@ -653,12 +674,21 @@ function TTRPG.Rule pR, pAction, pPlayer
             put "true" into sScene["clues"][tIdx]["found"]
             put tC["id"] into tRuling["clue"]
             put "The player discovers exactly this, and nothing more: " & tC["fact"] into tRuling["result"]
-            if not tMatched then
+            if tIdx is not tSpot then
                put " (Place this discovery where the player is looking.)" after tRuling["result"]
             end if
          else
             put tC["tries"] + 1 into sScene["clues"][tIdx]["tries"]
             put "The player finds nothing new this time. Say what they see instead; hint that a closer or different look might help." into tRuling["result"]
+         end if
+         break
+      case tDeclared is not empty
+         -- a named skill with no clue left for it still moves the story: one new lead of its kind
+         if ttRoll(tRuling, tSkill, tBonus, 10) then
+            put "The player's " & tSkill & " pays off. Give ONE small new lead that fits it (" & TTRPG.SkillLead(tSkill) & \
+                  ") and points somewhere new to go or someone to ask. Do not explain the whole mystery." into tRuling["result"]
+         else
+            put "The player's " & tSkill & " turns up nothing useful this time; describe a small setback or a dead end." into tRuling["result"]
          end if
          break
       case tKind is "look"
@@ -675,6 +705,58 @@ function TTRPG.Rule pR, pAction, pPlayer
    end switch
    return tRuling
 end TTRPG.Rule
+
+-- the skill a player names: "I use Arcana ...", "using my History", "Medicine: I check the body"; else empty
+function TTRPG.DeclaredSkill pAction
+   local s
+   repeat for each item s in kSkills
+      if matchText(pAction, "(?i)(^\s*" & s & "\s*[:\-]|\b(use|uses|using|with|try|tries|roll|rolls)\s+(my\s+|a\s+|an\s+)?" & s & "\b)") then return s
+   end repeat
+   return empty
+end TTRPG.DeclaredSkill
+
+-- what a skill turns up when no clue is left for it (the narrator's lead)
+function TTRPG.SkillLead pSkill
+   switch pSkill
+      case "Acrobatics"
+         return "a way up, across or through that nobody else could take"
+      case "Animal Handling"
+         return "what an animal here has noticed or is afraid of"
+      case "Arcana"
+         return "a trace of magic: a ward, a residue, a sign of a spell"
+      case "Athletics"
+         return "something heavy moved, a passage forced open, a place now reachable"
+      case "Deception"
+         return "what someone lets slip when they think the player is someone else"
+      case "History"
+         return "a piece of lore about this place or its people"
+      case "Insight"
+         return "what someone here is really feeling or wants"
+      case "Intimidation"
+         return "what a frightened someone blurts out"
+      case "Investigation"
+         return "a detail that does not fit and where it leads"
+      case "Medicine"
+         return "what a wound, body or sickness tells"
+      case "Nature"
+         return "what plants, weather, water or beasts tell"
+      case "Perception"
+         return "something small seen, heard or smelled"
+      case "Performance"
+         return "how the people here react and what one of them then says"
+      case "Persuasion"
+         return "a favour or a name someone offers"
+      case "Religion"
+         return "a rite, a god, a holy sign and what it means here"
+      case "Sleight of Hand"
+         return "something small taken, opened or slipped in unseen"
+      case "Stealth"
+         return "what is said or done when nobody knows the player is there"
+      case "Survival"
+         return "tracks, a trail, signs of who passed and where they went"
+   end switch
+   return "something new"
+end TTRPG.SkillLead
 
 -- d20 + bonus against pDC; writes success and the roll line into pRuling
 private function ttRoll @pRuling, pSkill, pBonus, pDC
@@ -1131,6 +1213,10 @@ function TTRPG.SelfTest pVectorsPath
    repeat with i = 1 to the number of elements of tV["is_named"]
       put tV["is_named"][i] into tCase
       ttCheck tOut, tFails, "is_named " & i, TTRPG.IsNamed(tCase[1], tCase[2]), tCase[3]
+   end repeat
+   repeat with i = 1 to the number of elements of tV["declared_skill"]
+      put tV["declared_skill"][i] into tCase
+      ttCheck tOut, tFails, "declared_skill " & i, TTRPG.DeclaredSkill(tCase[1]), tCase[2]
    end repeat
    -- JSON round trip: true / false stay booleans, lists stay lists, text survives
    put "true" into tA["found"]

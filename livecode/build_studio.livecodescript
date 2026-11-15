@@ -11,7 +11,9 @@ script "build_studio"
 
 constant kW = 1280
 constant kH = 720
-constant kSkills = "Perception,Investigation,Arcana,History,Insight,Athletics,Stealth,Persuasion"
+constant kSkills = "Acrobatics,Animal Handling,Arcana,Athletics,Deception,History,Insight,Intimidation,Investigation,Medicine,Nature,Perception,Performance,Persuasion,Religion,Sleight of Hand,Stealth,Survival"
+-- the skill buttons' short labels, same order
+constant kSkillShort = "Acrobatics,Animals,Arcana,Athletics,Deception,History,Insight,Intimidate,Investigate,Medicine,Nature,Perception,Perform,Persuasion,Religion,Sleight,Stealth,Survival"
 constant kDevOptions = "max_dm,max_voice,max_referee,max_make,max_summary,temp_dm,temp_voice,keep_turns,summary_every,ctx"
 constant kDevLabels = "Max tokens: narrator,Max tokens: voices,Max tokens: referee,Max tokens: scene / character maker,Max tokens: summary,Temperature: narrator,Temperature: voices,Turns kept word for word,Fold the summary every N turns,Context length (at Load)"
 
@@ -87,6 +89,8 @@ command Build.Studio pDir
          "in its own voice." & return & return & \
          "Clues come one at a time, only when you look, and are shown word for word after the narration " & \
          "(the narrator never sees a clue before you find it)." & return & return & \
+         "Name a skill (the buttons over the input box): it finds the clue that needs it, or a new lead; " & \
+         "Insight, Persuasion, Deception or Intimidation on a character presses for its secret." & return & return & \
          "Regenerate keeps the roll and the clue: only the words change." & return & return & \
          "DM Notes shows the hidden truth and the clues: it is your game, you may peek." & return & return & \
          "Characters: click one to edit it. Tick Keep after scene, then End Scene, and it joins every new scene." into field "LibsNote"
@@ -97,12 +101,12 @@ command Build.Studio pDir
    set the lockText of it to true
    set the vScrollbar of it to true
    create field "Log"
-   set the rect of it to 280, 178, 900, 612
+   set the rect of it to 280, 178, 900, 560
    set the lockText of it to true
    set the vScrollbar of it to true
    set the textSize of it to 13
    create field "Notes"
-   set the rect of it to 280, 178, 900, 612
+   set the rect of it to 280, 178, 900, 560
    set the lockText of it to true
    set the vScrollbar of it to true
    set the visible of it to false
@@ -116,6 +120,19 @@ command Build.Studio pDir
    set the lockText of it to true
    put "thinking..." into field "Thinking"
    set the visible of it to false
+   -- the skill buttons: a click starts the line with "I use <skill>: " (owner, 15 Nov: naming a skill moves the plot)
+   put 0 into i
+   repeat for each item tName in kSkills
+      put 280 + (i mod 9) * 69 into x
+      put 566 + (i div 9) * 24 into y
+      create button ("skill_" & tName)
+      set the label of it to item (i + 1) of kSkillShort
+      set the rect of it to x, y, x + 66, y + 22
+      set the textSize of it to 10
+      set the tooltip of it to "I use " & tName & ": ... (your bonus is on the sheet, right)"
+      Build.Click it, "Skill:" & tName
+      add 1 to i
+   end repeat
    Build.Pause
 
    ---------------------------------------------------------------- right: characters, your character
@@ -168,18 +185,19 @@ command Build.Studio pDir
    set the dontWrap of it to true
    put 0 into i
    repeat for each item tName in kSkills
-      put 912 + (i mod 2) * 182 into x
-      put 492 + (i div 2) * 28 into y
-      Build.Label "l_" & tName, tName, x, y + 2, x + 110, y + 22
+      put 912 + (i mod 3) * 121 into x
+      put 490 + (i div 3) * 26 into y
+      Build.Label "l_" & tName, tName, x, y + 3, x + 86, y + 21
+      set the textSize of field ("l_" & tName) to 10
       create field ("s_" & tName)
-      set the rect of it to x + 112, y, x + 160, y + 24
+      set the rect of it to x + 86, y, x + 118, y + 22
       set the dontWrap of it to true
-      set the tooltip of it to "bonus added to the d20 roll"
+      set the tooltip of it to tName & ": bonus added to the d20 roll"
       add 1 to i
    end repeat
    create button "PlayerSave"
    set the label of it to "Save"
-   set the rect of it to 1180, 610, 1272, 632
+   set the rect of it to 1180, 652, 1272, 674
    Build.Click it, "PlayerSave"
 
    create field "Status"
@@ -196,6 +214,10 @@ command Build.Studio pDir
       end if
    end repeat
    set the foregroundColor of field "Thinking" of card "Studio" of stack tS to Theme.Get("accent")
+   repeat for each item tName in kSkills
+      set the opaque of field ("l_" & tName) of card "Studio" of stack tS to false
+      set the showBorder of field ("l_" & tName) of card "Studio" of stack tS to false
+   end repeat
    Theme.End
    -- the library copies (used only when the files are not found next to the stack)
    Build.Substack tS, "TTRPG_Studio_lm", pDir & "/livecode/lib_ttrpg_lm.livecodescript"
@@ -318,6 +340,8 @@ command Build.About pStack, pDir
          "what this stack loaded (never a model that was already loaded)." & return & \
          "- New Scene: type a one-line idea. Wait for the opening (a few seconds)." & return & \
          "- Type what you do in the box under the log; Return sends. Say a character's name, or use quotes, to talk to them." & return & \
+         "- Name a skill to move the story: click a skill button over the box (it starts your line with " & quote & "I use Medicine: " & quote & "), " & \
+         "or type it. A named skill finds the clue that needs it, wherever you are; when none is left it turns up a new lead." & return & \
          "- Ctrl+R (or Regenerate): the last answer again in other words. Same roll, same clue." & return & \
          "- Add Character: by hand, or a one-line ask to the model. Click a character to edit it; Keep after scene " & \
          "+ End Scene keeps it for every new scene." & return & \

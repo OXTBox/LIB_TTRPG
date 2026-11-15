@@ -23,14 +23,38 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 PROMPTS = os.path.join(HERE, '..', 'prompts')
 BASE = 'http://127.0.0.1:1234'
 WSL = bool(shutil.which('curl.exe')) and os.path.isdir('/mnt/c')
-SKILLS = ['Perception', 'Investigation', 'Arcana', 'History', 'Insight', 'Athletics', 'Stealth', 'Persuasion']
-TALK_SKILLS = ('Insight', 'Persuasion')
+SKILLS = ['Acrobatics', 'Animal Handling', 'Arcana', 'Athletics', 'Deception', 'History', 'Insight', 'Intimidation',
+          'Investigation', 'Medicine', 'Nature', 'Perception', 'Performance', 'Persuasion', 'Religion',
+          'Sleight of Hand', 'Stealth', 'Survival']             # the 18 of D&D 5e
+TALK_SKILLS = ('Insight', 'Persuasion', 'Deception', 'Intimidation')
+# what a skill turns up when no clue is left for it: the narrator's lead (owner, 15 Nov: "I use Skill X"
+# moves the plot along in new directions)
+SKILL_LEADS = {'Acrobatics': 'a way up, across or through that nobody else could take',
+               'Animal Handling': 'what an animal here has noticed or is afraid of',
+               'Arcana': 'a trace of magic: a ward, a residue, a sign of a spell',
+               'Athletics': 'something heavy moved, a passage forced open, a place now reachable',
+               'Deception': 'what someone lets slip when they think the player is someone else',
+               'History': 'a piece of lore about this place or its people',
+               'Insight': 'what someone here is really feeling or wants',
+               'Intimidation': 'what a frightened someone blurts out',
+               'Investigation': 'a detail that does not fit and where it leads',
+               'Medicine': 'what a wound, body or sickness tells',
+               'Nature': 'what plants, weather, water or beasts tell',
+               'Perception': 'something small seen, heard or smelled',
+               'Performance': 'how the people here react and what one of them then says',
+               'Persuasion': 'a favour or a name someone offers',
+               'Religion': 'a rite, a god, a holy sign and what it means here',
+               'Sleight of Hand': 'something small taken, opened or slipped in unseen',
+               'Stealth': 'what is said or done when nobody knows the player is there',
+               'Survival': 'tracks, a trail, signs of who passed and where they went'}
 DEFAULT_PLAYER = {'id': 'player', 'name': 'Wren', 'kind': 'constant', 'player': True,
                   'look': 'a wiry traveller in a patched grey cloak', 'voice': 'dry and curious',
                   'wants': 'to know what happened here', 'secret': '',
-                  'skills': {'Perception': 2, 'Investigation': 3, 'Arcana': 3, 'History': 1,
+                  'skills': {'Acrobatics': 1, 'Animal Handling': 0, 'Deception': 1, 'Intimidation': 0, 'Medicine': 1,
+                             'Nature': 1, 'Performance': 0, 'Religion': 2, 'Sleight of Hand': 2, 'Survival': 1,
+                             'Perception': 2, 'Investigation': 3, 'Arcana': 3, 'History': 1,
                              'Insight': 1, 'Athletics': 0, 'Stealth': 2, 'Persuasion': 1}}
-MAX_TOKENS = {'dm': 200, 'voice': 120, 'referee': 60, 'make': 500, 'summary': 120, 'player': 60}
+MAX_TOKENS = {'dm': 200, 'voice': 120, 'referee': 60, 'make': 500, 'summary': 120, 'player': 90}
 KEEP_TURNS = 3          # exchanges shown to the models word for word
 SUMMARY_EVERY = 4       # fold older exchanges into the summary this often
 
@@ -192,6 +216,7 @@ class Studio:
     def player(self):
         for ch in self.constants():
             if ch.get('player'):
+                ch['skills'] = {k: int(ch.get('skills', {}).get(k, 0)) for k in SKILLS}
                 return ch
         self.save_character(dict(DEFAULT_PLAYER))
         return dict(DEFAULT_PLAYER)
@@ -315,13 +340,16 @@ class Studio:
         r = self.form('referee', self.dm, fill('referee'), fill(
             'referee_user', names=', '.join(names) or '(nobody)', spots=spots, action=action), schema, 0.0) \
             or {'kind': 'do', 'who': 'nobody', 'spot': 'none', 'skill': 'Perception'}
-        kind, skill = r['kind'], r['skill']
+        declared = declared_skill(action)                    # "I use Arcana ...": the player's choice is honoured
+        kind, skill = r['kind'], declared or r['skill']
         named = [c for c in scene['characters'] if is_named(c['name'], action)]
         who = next((c for c in scene['characters'] if c['name'] == r['who']), None)
         if kind == 'talk' and not who:
             who = named[0] if named else (scene['characters'][0] if len(scene['characters']) == 1 else None)
         if kind != 'talk' and named and ('"' in action or '?' in action):
             kind, who = 'talk', named[0]                     # the referee missed plain speech to a named character
+        if kind == 'talk' and declared and declared not in TALK_SKILLS and '"' not in action:
+            kind = 'do'                                      # "I use Medicine on Mara's wound" is an action, not talk
         if kind == 'talk' and not who:
             kind = 'do'
         bonus = int(p.get('skills', {}).get(skill, 0))
@@ -334,24 +362,36 @@ class Studio:
                 skill, d, '+' if bonus >= 0 else '-', abs(bonus), d + bonus, dc, 'success' if ok else 'failure'))
             return ok
 
+        if declared:
+            ruling['declared'] = True
+        by_skill = next((c for c in open_clues if declared and c['skill'] == declared), None)
         if kind == 'talk':
             ruling['who'] = who['id']
-            if skill in TALK_SKILLS and who.get('secret') and re.search(
-                    r'persua|convinc|plead|press|insist|trust|lying|lie\b|truth|hiding|secret|insight|read (him|her|them)', action, re.I):
+            # pressing: a social skill named outright, or the old words that mean pressing
+            if who.get('secret') and not who.get('revealed') and skill in TALK_SKILLS and (declared or re.search(
+                    r'persua|convinc|plead|press|insist|trust|lying|lie\b|truth|hiding|secret|insight|read (him|her|them)', action, re.I)):
                 roll(13)
             ruling['result'] = ''
-        elif kind == 'look' and open_clues:
-            clue = next((c for c in open_clues if str(c['id']) == r['spot']), None)
+        elif open_clues and (kind == 'look' or by_skill):
+            spot = next((c for c in open_clues if str(c['id']) == r['spot']), None)
+            clue = by_skill or spot                          # a named skill opens its own clue, wherever the player is
             matched = clue is not None
             clue = clue or open_clues[0]                     # Lazy DM: the next clue turns up where the player looks
             dc = max(5, (8 if matched else 11) - 3 * clue['tries'])
             if roll(dc):
                 clue['found'] = True
                 ruling.update(clue=clue['id'], result='The player discovers exactly this, and nothing more: ' + clue['fact'] + (
-                    '' if matched else ' (Place this discovery where the player is looking.)'))
+                    '' if clue is spot else ' (Place this discovery where the player is looking.)'))
             else:
                 clue['tries'] += 1
                 ruling['result'] = 'The player finds nothing new this time. Say what they see instead; hint that a closer or different look might help.'
+        elif declared:
+            # a named skill with no clue left for it still moves the story: one new lead of its kind
+            if roll(10):
+                ruling['result'] = ('The player\'s %s pays off. Give ONE small new lead that fits it (%s) and points somewhere '
+                                    'new to go or someone to ask. Do not explain the whole mystery.') % (skill, SKILL_LEADS[skill])
+            else:
+                ruling['result'] = 'The player\'s %s turns up nothing useful this time; describe a small setback or a dead end.' % skill
         elif kind == 'look':
             ruling['result'] = 'There is nothing more hidden here. The player sees only what is already known.'
         else:
@@ -374,6 +414,8 @@ class Studio:
 
 
 # ---------------------------------------------------------------- text helpers
+PLAYER_SCHEMA = {'type': 'object', 'properties': {'skill': {'type': 'string', 'enum': SKILLS}, 'action': {'type': 'string'}},
+                 'required': ['skill', 'action']}
 CHARACTER_PROPS = {k: {'type': 'string'} for k in ('name', 'look', 'voice', 'wants', 'secret')}
 CHARACTER_SCHEMA = {'type': 'object', 'properties': CHARACTER_PROPS, 'required': list(CHARACTER_PROPS)}
 SCENE_SCHEMA = {'type': 'object', 'properties': {
@@ -399,6 +441,14 @@ def fill(name, /, **values):
 
 def slug(s):
     return re.sub(r'[^a-z0-9]+', '_', s.lower()).strip('_')[:40] or 'x'
+
+
+def declared_skill(action):
+    """the skill a player names: "I use Arcana ...", "using my History", "Medicine: I check the body" -> the skill, or None"""
+    for s in SKILLS:
+        if re.search(r'(^\s*%s\s*[:\-]|\b(use|uses|using|with|try|tries|roll|rolls)\s+(my\s+|a\s+|an\s+)?%s\b)' % (s, s), action, re.I):
+            return s
+    return None
 
 
 NAME_NOISE = ('the', 'a', 'an', 'of', 'old', 'young', 'elder', 'brother', 'sister', 'father', 'mother', 'sir', 'lady', 'lord', 'captain')
@@ -573,21 +623,27 @@ def cmd_selfplay(st, idea, player_model, turns):
     p = st.player()
     out = ['== %s ==  (DM %s, Voices %s, player %s)' % (scene['title'], st.dm, st.voices, player_model),
            'DM: ' + scene['opening']]
-    kinds, found_at, repeats, last_dm, actions = {}, [], 0, '', []
+    kinds, found_at, repeats, last_dm, actions, used, by_named, leads = {}, [], 0, '', [], {}, 0, 0
     for n in range(1, turns + 1):
         known = ' '.join([c['fact'] for c in scene['clues'] if c['found']] +
                          [c['name'] + ': ' + c['secret'] for c in scene['characters'] if c.get('revealed')]) or 'nothing yet'
         skills = ', '.join('%s %+d' % (k, v) for k, v in p.get('skills', {}).items())
-        action = player_line(st.chat('player', player_model, fill('player', name=p['name'], look=p['look'], wants=p['wants'],
-                                                                     skills=skills),
-                                     fill('player_user', opening=scene['opening'], who=who_line(scene), known=known,
-                                          recent=recent_text(scene, p['name'])), temperature=0.9), p['name'])
+        move = st.form('player', player_model, fill('player', name=p['name'], look=p['look'], wants=p['wants'], skills=skills),
+                       fill('player_user', opening=scene['opening'], who=who_line(scene), known=known,
+                            recent=recent_text(scene, p['name'])), PLAYER_SCHEMA, 0.9) or {}
+        action = player_line(move.get('action', ''), p['name'])
+        if move.get('skill') in SKILLS and not declared_skill(action):
+            action = 'I use %s: %s' % (move['skill'], action)
         before = sum(c['found'] for c in scene['clues'])
         shown = st.turn(scene, action)
         ruling = scene['turns'][-1]['ruling']
         kinds[ruling['kind']] = kinds.get(ruling['kind'], 0) + 1
+        used[ruling['skill']] = used.get(ruling['skill'], 0) + 1
         if sum(c['found'] for c in scene['clues']) > before:
             found_at.append(n)
+            by_named += 1 if ruling.get('declared') else 0
+        if ruling.get('declared') and 'pays off' in ruling.get('result', ''):
+            leads += 1
         reply = scene['turns'][-1]['reply']
         if scene['turns'][-1]['speaker'] == 'DM':
             if last_dm and len(set(reply.lower().split()) & set(last_dm.lower().split())) > 0.6 * min(len(reply.split()), len(last_dm.split())):
@@ -600,7 +656,10 @@ def cmd_selfplay(st, idea, player_model, turns):
     nclues = len(scene['clues'])
     counts = ['', '== counts ==',
               'turns: %d; referee said: %s' % (turns, ', '.join('%s %d' % kv for kv in sorted(kinds.items()))),
-              'clues found: %d of %d, at turns %s' % (len(found_at), nclues, found_at or '-'),
+              'skills used (%d different): %s' % (len(used), ', '.join('%s %d' % kv for kv in sorted(used.items(), key=lambda x: -x[1]))),
+              'clues found: %d of %d, at turns %s; %d by a named skill' % (len(found_at), nclues, found_at or '-', by_named),
+              'leads from a named skill with no clue left: %d' % leads,
+              'clue skills in this scene: %s' % ', '.join(c['skill'] for c in scene['clues']),
               'secrets revealed: %d' % sum(1 for c in scene['characters'] if c.get('revealed')),
               'narration nearly repeating the one before: %d' % repeats,
               'player repeated an action word for word: %d' % (len(actions) - len(set(actions))),

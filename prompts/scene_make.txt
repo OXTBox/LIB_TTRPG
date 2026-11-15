@@ -6,5 +6,5 @@ Fill in the form. Be concrete and brief: one sentence per field.
 - place: where the player is standing.
 - happening: what is plainly going on in front of the player.
 - wrong: the one thing that is visibly off or dangerous.
-- clues: {nclues} separate small facts that each point toward the truth. "where" is the object or spot that holds the clue (2 to 4 words). "fact" is what the player learns there, one sentence.
+- clues: {nclues} separate small facts that each point toward the truth. "where" is the object or spot that holds the clue (2 to 4 words). "skill" is the skill that finds it: use a different skill for each clue, and not only Perception or Investigation (for example History for lore, Medicine for a body, Survival for tracks, Insight for a person). "fact" is what the player learns there, one sentence.
 - npc: one person or creature present who can talk. "voice" is how they speak (for example: clipped and nervous). "wants" is what they want right now. "secret" is something they hide.
