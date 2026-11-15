@@ -67,4 +67,9 @@ put "true" into tS["characters"][1]["revealed"]
 TTRPG.Scene.Use tS
 put TTRPG.Rule(tR, "I use Persuasion: " & quote & "Mara, tell me more." & quote, tP) into tX
 put (tX["roll"] is empty) & "  no press once the secret is out" & cr after tLog
+put "talk" into tR["kind"]
+put TTRPG.Rule(tR, "I use Investigation: I ask Mara about the creatures", tP) into tX
+put (tX["kind"] is "talk") & "  a named skill + asking a character stays talk" & cr after tLog
+put TTRPG.Rule(tR, "I use Medicine on Mara's wound", tP) into tX
+put (tX["kind"] is "do") & "  a named Medicine on a character is an action" & cr after tLog
 return tLog

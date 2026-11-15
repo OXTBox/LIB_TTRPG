@@ -348,7 +348,8 @@ class Studio:
             who = named[0] if named else (scene['characters'][0] if len(scene['characters']) == 1 else None)
         if kind != 'talk' and named and ('"' in action or '?' in action):
             kind, who = 'talk', named[0]                     # the referee missed plain speech to a named character
-        if kind == 'talk' and declared and declared not in TALK_SKILLS and '"' not in action:
+        if kind == 'talk' and declared and declared not in TALK_SKILLS and '"' not in action and not re.search(
+                r'\b(ask|asks|tell|tells|say|says|speak|talk|question|call out)\b', action, re.I):
             kind = 'do'                                      # "I use Medicine on Mara's wound" is an action, not talk
         if kind == 'talk' and not who:
             kind = 'do'

@@ -56,3 +56,29 @@ player, 20 turns, about 40 s of calls (player 0.4 s, referee 0.5 s, narrator 0.7
 | A false risky roll | "I run my fingers along the statues" rolled against 10: the risky-verb list matched "run" |
 | The narrator slips into third person | "Wren focuses... she sees" (turns 8, 10, 19), and gives the player a gender, despite "you" in the prompt |
 | The truth stays vague | "the flooding isn't just a collapsed roof": the clues (an inscription, a prayer, footprints) never add up to it (weak spot 4 again, gemma as scene maker) |
+
+## Self-play 2: skills drive the play (15 Nov)
+
+After the owner's point ("I use Skill X" moves the plot): 18 D&D skills; a named skill is honoured,
+opens the clue that needs it (or, by the Lazy DM rule, the next one), and with no clue left turns up
+a lead of its kind; a named social skill presses a secret. Same idea, gemma-2-2b everywhere, 20
+turns. Transcript `work/selfplay/2026-11-15_111147_flooded_crypt.txt`.
+
+| | Run 1 (no skills) | Run 2 (skills) |
+|---|---|---|
+| Clues found | 4 of 4, turns 3, 7, 8, 10 | 4 of 4, turns 3, 4, 5, 6 |
+| After the last clue | 10 turns of nothing | **9 leads**: a pulsing silver bead, a glowing symbol, a trail of dust, a sarcophagus with a priest, a silver key. The story kept moving |
+| Clue skills the scene maker chose | Perception-heavy | History, Religion, Survival, Insight (the prompt now asks for a spread) |
+| Skills the player used | (none named) | **only Investigation 15, Perception 5**: gemma picks its best bonus and its habit, not the skill that fits |
+| Secret | 0 | 0: the player never tried a social skill |
+| Player repeated itself word for word | 0 | 5 |
+
+Fixed after the run: a named non-social skill turned "I ask Silvanus..." into an action, so the
+narrator spoke for Silvanus (turns 11, 12). An action that asks or tells a character now stays talk
+(both versions, tested).
+
+Still open:
+- the player model's skill variety. That is a weakness of the test player more than of the game
+  (a person has the buttons). Possible fix in the harness: tell it which skills it has not tried yet.
+- No ending once the story has moved on (a "the truth comes out" beat).
+- The narrator's leftovers: "You see:", "The player sees...", "Wren ... she".

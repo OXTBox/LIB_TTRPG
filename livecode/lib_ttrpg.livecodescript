@@ -627,7 +627,8 @@ function TTRPG.Rule pR, pAction, pPlayer
       put "talk" into tKind
       put tNamed into tWho
    end if
-   if tKind is "talk" and tDeclared is not empty and tDeclared is not among the items of kTalkSkills and not (pAction contains quote) then
+   if tKind is "talk" and tDeclared is not empty and tDeclared is not among the items of kTalkSkills and not (pAction contains quote) \
+         and not matchText(pAction, "(?i)\b(ask|asks|tell|tells|say|says|speak|talk|question|call out)\b") then
       put "do" into tKind                             -- "I use Medicine on Mara's wound" is an action, not talk
    end if
    if tKind is "talk" and tWho is 0 then put "do" into tKind
