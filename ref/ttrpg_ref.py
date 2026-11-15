@@ -277,8 +277,14 @@ class Studio:
                 'voice_user', place=scene['place'], recent=recent, player=p['name'], action=action), temperature=0.9)
             text = clean_speech(text, ch['name']) or '...'
             shown.append((ch['name'], text))
+            if ruling.get('success') and ch.get('secret'):
+                # small models rarely let it slip even when told to (TUNING.md, W2): the code shows it,
+                # word for word, as it does a found clue; from now on it is known, not hidden
+                ch['revealed'] = True
+                shown.append(('secret', '%s: %s' % (ch['name'], ch['secret'])))
         else:
-            known = ' '.join(c['fact'] for c in scene['clues'] if c['found'] and c['id'] != ruling.get('clue')) or 'nothing yet'
+            known = ' '.join([c['fact'] for c in scene['clues'] if c['found'] and c['id'] != ruling.get('clue')] +
+                             [c['secret'] for c in scene['characters'] if c.get('revealed')]) or 'nothing yet'
             text = clean_narration(self.chat('dm', self.dm, fill('dm_turn'), fill(
                 'dm_turn_user', place=scene['place'], who=who_line(scene), summary=scene['summary'] or 'The scene has just begun.',
                 known=known, recent=recent, player=p['name'], action=action, result=ruling['result'])), 4)
@@ -288,7 +294,7 @@ class Studio:
                 shown.append(('clue', fact))                 # the clue itself, word for word: small models blur it
             else:
                 shown.append(('DM', text or 'Nothing changes.'))
-        said = [x for x in shown if x[0] not in ('roll', 'clue')][-1]
+        said = [x for x in shown if x[0] not in ('roll', 'clue', 'secret')][-1]
         scene['turns'].append({'action': action, 'ruling': ruling, 'speaker': said[0], 'reply': said[1]})
         self.fold(scene)
         self.save_scene(scene)
@@ -463,7 +469,7 @@ def clean_speech(text, name):
 # ---------------------------------------------------------------- command line
 def show(lines):
     for who, text in lines:
-        print(('   [%s]' % text) if who == 'roll' else ('   [clue: %s]' % text) if who == 'clue' else '\n%s: %s' % (who, text))
+        print(('   [%s]' % text) if who == 'roll' else ('   [%s: %s]' % (who, text)) if who in ('clue', 'secret') else '\n%s: %s' % (who, text))
 
 
 def cmd_play(st, idea):
@@ -487,7 +493,7 @@ def cmd_play(st, idea):
             for c in scene['clues']:
                 print(' %s %d. %s (%s): %s' % ('x' if c['found'] else ' ', c['id'], c['where'], c['skill'], c['fact']))
             for c in scene['characters']:
-                print(' %s wants %s; hides %s' % (c['name'], c.get('wants'), c.get('secret')))
+                print(' %s wants %s; hides %s%s' % (c['name'], c.get('wants'), c.get('secret'), ' (revealed)' if c.get('revealed') else ''))
             print('SUMMARY:', scene['summary'])
         elif line == '/who':
             for c in scene['characters']:

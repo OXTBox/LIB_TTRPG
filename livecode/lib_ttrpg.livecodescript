@@ -18,8 +18,8 @@ script "lib_ttrpg"
 ##   TTRPG.Cancel, TTRPG.Busy(), TTRPG.Scene(), TTRPG.Chars(), TTRPG.Player(), TTRPG.Notes()
 ##   TTRPG.SelfTest(pVectors)     the text helpers against ref/vectors.json
 ##   TTRPG.OwnerTest()            the owner's test (needs a loaded model), PASS / FAIL lines
-## pLines of TTRPG.Shown: one line each, speaker <tab> text; speaker "roll" / "clue" are the
-## die line and a found clue word for word, "DM" the narrator, else a character's name.
+## pLines of TTRPG.Shown: one line each, speaker <tab> text; speaker "roll" / "clue" / "secret" are
+## the die line, a found clue and a pressed-out secret ("Name: secret"), word for word, "DM" the narrator, else a character's name.
 ## A turn in async form: Begin -> referee form -> ttOnReferee (the ruling, pure code) ->
 ## narrator or voice -> ttOnWords (append, save, TTRPG.Shown) -> fold when due -> TTRPG.Done.
 ######################################################################################
@@ -496,7 +496,9 @@ function TTRPG.Notes
    put return & "CHARACTERS" & return after tOut
    repeat with i = 1 to the number of elements of sScene["characters"]
       put sScene["characters"][i] into tC
-      put tC["name"] && "(" & tC["kind"] & ") wants " & tC["wants"] & "; hides " & tC["secret"] & return after tOut
+      put tC["name"] && "(" & tC["kind"] & ") wants " & tC["wants"] & "; hides " & tC["secret"] after tOut
+      if tC["revealed"] is "true" then put " (revealed)" after tOut
+      put return after tOut
    end repeat
    put return & "SUMMARY (" & sScene["folded"] & " turns folded): " & sScene["summary"] after tOut
    return tOut
@@ -729,6 +731,9 @@ private command ttWords
             put sScene["clues"][i]["fact"] & space after tKnown
          end if
       end repeat
+      repeat with i = 1 to the number of elements of sScene["characters"]
+         if sScene["characters"][i]["revealed"] is "true" then put sScene["characters"][i]["secret"] & space after tKnown
+      end repeat
       put word 1 to -1 of tKnown into tV["known"]
       if tV["known"] is empty then put "nothing yet" into tV["known"]
       put TTRPG.WhoLine(sScene) into tV["who"]
@@ -765,6 +770,14 @@ on TTRPG.OnWords pText, pErr
       if tText is empty then put "..." into tText
       put tC["name"] & tab & tText & return after tShown
       put tC["name"] into tSaid
+      if tR["success"] is "true" and tC["secret"] is not empty then
+         -- small models rarely let it slip even when told to (TUNING.md, W2): the code shows it,
+         -- word for word, as it does a found clue; from now on it is known, not hidden
+         repeat with i = 1 to the number of elements of sScene["characters"]
+            if sScene["characters"][i]["id"] is tR["who"] then put "true" into sScene["characters"][i]["revealed"]
+         end repeat
+         put "secret" & tab & tC["name"] & ": " & tC["secret"] & return after tShown
+      end if
    else
       put TTRPG.CleanNarration(pText, 4) into tText
       if tR["clue"] is not empty and tR["success"] is "true" then

@@ -659,7 +659,7 @@ end jsString
 -- Keys 1..n -> a list. "true" / "false" -> true / false; plain decimal numbers stay numbers.
 -- Keys in kListKeys are lists even when empty. Keys come in a reading order (kKeyOrder), then A to Z.
 constant kListKeys = "turns,clues,characters"
-constant kKeyOrder = "id,name,kind,player,look,voice,wants,secret,keep,skills,idea,title,place,happening,wrong,truth,clues,characters,opening,summary,folded,turns,ended,file,where,skill,fact,found,tries,action,ruling,speaker,reply,who,success,roll,clue,result"
+constant kKeyOrder = "id,name,kind,player,look,voice,wants,secret,revealed,keep,skills,idea,title,place,happening,wrong,truth,clues,characters,opening,summary,folded,turns,ended,file,where,skill,fact,found,tries,action,ruling,speaker,reply,who,success,roll,clue,result"
 
 function TTRPG.JSON.Export pV
    return jsOut(pV, 0, empty)

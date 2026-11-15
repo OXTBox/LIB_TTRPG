@@ -26,7 +26,20 @@ character, `/who`, `/notes` (peek at the DM's hidden notes), `/end`, `/quit`.
 | `prompts/*.txt` | every prompt, as plain text with `{blanks}`; the terminal version and the stack share them |
 | `ref/ttrpg_ref.py` | the engine, reference version: `models`, `load`, `unload`, `play`, `test` |
 | `ref/vectors.json` | text-cleaning examples the stack's port must reproduce |
-| `livecode/` | the stack's scripts and builder (to be built: `OPUS_BUILD.md`) |
+| `livecode/` | the stack's scripts and builder; `livecode/tests/` the headless tests |
+| `TTRPG_Studio.livecode` | the built stack |
+| `TUNING.md` | what was measured with real models, and what changed |
+| `ref/tune.py` | the measuring harness for the weak spots |
 
-Status: the engine passes the owner's test steps 2 to 6 from the terminal (gemma-2-2b alone, and
-gemma + lfm3-omni-2b together). The stack (window) is not built yet.
+## Play it in the window
+
+Open `TTRPG_Studio.livecode` (here, or the copy in `LIB_TEST/`). Pick a DM model on the left,
+press Load, press New Scene, type an idea, then type what you do. Esc pauses (developer options);
+Ctrl+R regenerates. Closing the window unloads the models it loaded. The About card says the rest.
+Rebuild after editing a script: `start using stack ".../livecode/build_studio.livecodescript"`,
+then `Build.Studio ".../LIB_TTRPG"`.
+
+Status (15 Nov 2026): the terminal engine and the stack's engine both pass the owner's test steps 2 to
+6 (gemma-2-2b alone; gemma + lfm3-omni-2b; a Voices model that will not load falls back to one).
+The stack's engine was tested headless (`livecode/tests/`); the window itself has not been seen on a
+screen yet. Tuning results: `TUNING.md`.

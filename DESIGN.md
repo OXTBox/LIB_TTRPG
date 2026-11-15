@@ -44,6 +44,7 @@ player types a line
   -> talk: VOICES model speaks as the character. The narrator is not called at all.
      else: NARRATOR words the RESULT in 2 or 3 sentences.
   -> shown: the roll line, the reply, and after a found clue the clue itself, word for word
+     (after a successful press, the character's secret, word for word)
   -> every 4 turns: fold exchanges older than the last 3 into the summary
 ```
 
@@ -117,8 +118,9 @@ user, reply, finish, error, seconds. This is the tuning record.
 
 1. A 2B model does not always word the clue clearly; that is why the clue is also shown word for word.
 2. On a successful Persuasion the character is *told* to let the secret slip, and gemma 2B often
-   still does not. Fix to try: put the secret in the user message ("Say this now, in your own
-   words: ..."), or show it as a clue line the way found clues are.
+   still does not. **Fixed (15 Nov, TUNING.md):** the code now shows the secret word for word as a
+   `[secret]` line, the way found clues are shown, and marks the character `revealed` (the narrator
+   may know it from then on). Putting the secret in the user message was tried and did not help.
 3. Repeating the same action can get nearly the same narration back (it is in "Just before").
 4. The scene maker's clues do not always point at the truth; fine for fun, weak for mysteries.
    A 7B model as DM (qwen2.5-7b) with a 2B for Voices is the pairing to try.

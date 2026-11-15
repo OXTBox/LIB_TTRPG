@@ -57,6 +57,19 @@ if tBad is 0 then
 else
   put "FAIL  " & tBad & " calls carried the truth or the secret" & cr after tLog
 end if
+-- W2: a successful press shows the secret word for word ("secret" line); never before
+put "{" & quote & "kind" & quote & ":" & quote & "talk" & quote & "," & quote & "who" & quote & ":" & quote & "Sexton Mara" & quote & "," & quote & "spot" & quote & ":" & quote & "none" & quote & "," & quote & "skill" & quote & ":" & quote & "Persuasion" & quote & "}" into gMockReply["referee"]
+TTRPG.Scene.New "a crypt again"
+put empty into gLeaks
+repeat with tTry = 1 to 15
+  TTRPG.Turn.Begin "I press Mara: " & quote & "tell me the truth, what are you hiding?" & quote
+  if TTRPG.LastShown() contains (cr & "secret" & tab) then exit repeat
+end repeat
+if TTRPG.LastShown() contains ("secret" & tab & "Sexton Mara: MARA-SECRET") then
+  put "PASS  the secret is shown after a successful press (try " & tTry & ")" & cr after tLog
+else
+  put "FAIL  no secret line: " & TTRPG.LastShown() & cr after tLog
+end if
 put "log lines: " & the number of lines of tL & cr after tLog
 put "scene file: " & TTRPG.ScenePath() & cr after tLog
 put TTRPG.Notes() after tLog

@@ -404,7 +404,7 @@ end TTRPG.Done
 
 -------------------------------------------------------------------- the log
 
--- pKind: player, DM, roll, clue, note, error, or a character's name
+-- pKind: player, DM, roll, clue, secret, note, error, or a character's name
 on St.Log pKind, pWho, pText
    local tP
    switch pKind
@@ -419,6 +419,9 @@ on St.Log pKind, pWho, pText
          break
       case "clue"
          put "<p><font color=" & quote & "#ffd75a" & quote & "><b>[clue]</b> " & St.Esc(pText) & "</font></p>" into tP
+         break
+      case "secret"
+         put "<p><font color=" & quote & "#ff9fd0" & quote & "><b>[secret]</b> " & St.Esc(pText) & "</font></p>" into tP
          break
       case "note"
          put "<p><font color=" & quote & "#8a8a92" & quote & "><i>" & St.Esc(pText) & "</i></font></p>" into tP
