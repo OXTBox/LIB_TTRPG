@@ -1,0 +1,21 @@
+-- TTRPG Studio: build the stack with no window (into a copy folder), then check its parts and
+-- run its stack script's non-screen handlers with a mock model.
+global gMockReply
+put "/home/igame3d/projects/LIB_TTRPG" into tRoot
+start using stack (tRoot & "/livecode/build_studio.livecodescript")
+put "C:/LIB_MCP/ttrpg_build_" & the milliseconds into tCopy
+create folder tCopy
+Build.Studio tRoot
+put the result into tPath
+put "built: " & tPath & cr into tLog
+if tPath begins with "ERROR" then return tLog & "FAIL build"
+put "title: " & the title of stack "TTRPG_Studio" & cr after tLog
+put "cards: " & the cardNames of stack "TTRPG_Studio" & cr after tLog
+replace cr with "," in line -1 of tLog
+put cr & "substacks: " & the substacks of stack "TTRPG_Studio" & cr after tLog
+set the customPropertySet of stack "TTRPG_Studio" to "Prompts"
+put "prompts kept: " & the number of lines of the customKeys of stack "TTRPG_Studio" & cr after tLog
+set the customPropertySet of stack "TTRPG_Studio" to empty
+put "controls on Studio: " & the number of controls of card "Studio" of stack "TTRPG_Studio" & cr after tLog
+put "closeStackRequest in script: " & (the script of stack "TTRPG_Studio" contains "on closeStackRequest") & cr after tLog
+return tLog
