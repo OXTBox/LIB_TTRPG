@@ -1,0 +1,5 @@
+Place: {place}
+Happening: {happening}
+Here: {who}
+Wrong: {wrong}
+You (the player; never use a name for them): {player}

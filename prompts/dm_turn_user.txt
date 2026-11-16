@@ -1,0 +1,8 @@
+Place: {place}
+Here: {who}
+Story so far: {summary}
+Already known: {known}
+Just before: {recent}
+
+The player ("you", {player}) does: {action}
+RESULT: {result}

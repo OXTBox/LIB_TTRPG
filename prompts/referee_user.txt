@@ -1,0 +1,4 @@
+Characters here: {names}
+Spots:
+{spots}
+Player's move: {action}

@@ -1,0 +1,61 @@
+-- TTRPG Studio: the stack's own handlers with no window and a MOCK model. Builds first.
+-- LIB_DATA is pointed at a temp folder for this run (Data.UseRoot), so the real Data folder is untouched.
+global gMockReply
+put "/home/igame3d/projects/LIB_TTRPG" into tRoot
+start using stack (tRoot & "/livecode/build_studio.livecodescript")
+Build.Studio tRoot
+put the result into tPath
+if tPath begins with "ERROR" then return "FAIL build " & tPath
+put "C:/LIB_MCP/ttrpg_ui_" & the milliseconds into tData
+create folder tData
+start using stack "/home/igame3d/projects/LIB_DATA/livecode/lib_data.livecodescript"
+Data.UseRoot tData
+create stack "ttrpg_mock"
+set the script of stack "ttrpg_mock" to "global gMockReply" & cr & "function TTRPG.Mock pRole, pSystem, pUser" & cr & "return gMockReply[pRole]" & cr & "end TTRPG.Mock"
+put "{" & quote & "title" & quote & ":" & quote & "The Drowned Bell" & quote & "," & quote & "truth" & quote & ":" & quote & "t" & quote & "," & quote & "place" & quote & ":" & quote & "A crypt." & quote & "," & quote & "happening" & quote & ":" & quote & "h" & quote & "," & quote & "wrong" & quote & ":" & quote & "w" & quote & "," & quote & "clues" & quote & ":[{" & quote & "where" & quote & ":" & quote & "the walls" & quote & "," & quote & "skill" & quote & ":" & quote & "Arcana" & quote & "," & quote & "fact" & quote & ":" & quote & "A <bell> & carving." & quote & "}]," & quote & "npc" & quote & ":{" & quote & "name" & quote & ":" & quote & "Mara" & quote & "," & quote & "look" & quote & ":" & quote & "wet" & quote & "," & quote & "voice" & quote & ":" & quote & "low" & quote & "," & quote & "wants" & quote & ":" & quote & "out" & quote & "," & quote & "secret" & quote & ":" & quote & "s" & quote & "}}" into gMockReply["make"]
+put "{" & quote & "kind" & quote & ":" & quote & "look" & quote & "," & quote & "who" & quote & ":" & quote & "nobody" & quote & "," & quote & "spot" & quote & ":" & quote & "1" & quote & "," & quote & "skill" & quote & ":" & quote & "Arcana" & quote & "}" into gMockReply["referee"]
+put "Water rises. A bell tolls. Mara waits. Stone sweats." into gMockReply["dm"]
+put "Go away." into gMockReply["voice"]
+put "Short." into gMockReply["summary"]
+dispatch "St.Init" to stack "TTRPG_Studio"
+put "St.Init: " & it & cr into tLog
+put "libs:" & cr & value("St.Libs()", stack "TTRPG_Studio") after tLog
+put "status after Refresh (real LM Studio, read only): " & field "Status" of card "Studio" of stack "TTRPG_Studio" & cr after tLog
+put "player sheet: " & field "p_name" of card "Studio" of stack "TTRPG_Studio" & ", Arcana " & field "s_Arcana" of card "Studio" of stack "TTRPG_Studio" & cr after tLog
+TTRPG.LM.Set "mock", the long id of stack "ttrpg_mock"
+TTRPG.LM.UseModels "mock-dm", empty
+set the randomSeed to 3
+TTRPG.Scene.New "a crypt"
+put "scene field: " & field "SceneText" of card "Studio" of stack "TTRPG_Studio" & cr after tLog
+put "chars: " & field "CharList" of card "Studio" of stack "TTRPG_Studio" & cr after tLog
+put "I study the walls" into field "Input" of card "Studio" of stack "TTRPG_Studio"
+dispatch "St.Send" to stack "TTRPG_Studio"
+put "input cleared: " & (field "Input" of card "Studio" of stack "TTRPG_Studio" is empty) & cr after tLog
+put "Mara, " & quote & "who are you?" & quote into field "Input" of card "Studio" of stack "TTRPG_Studio"
+dispatch "St.Send" to stack "TTRPG_Studio"
+dispatch "St.Regenerate" to stack "TTRPG_Studio"
+put "LOG:" & cr & field "Log" of card "Studio" of stack "TTRPG_Studio" & cr after tLog
+put "log html escapes: " & (the htmlText of field "Log" of card "Studio" of stack "TTRPG_Studio" contains "&lt;bell&gt; &amp;") & cr after tLog
+put "thinking hidden: " & (not the visible of field "Thinking" of card "Studio" of stack "TTRPG_Studio") & cr after tLog
+dispatch "St.CharPick" to stack "TTRPG_Studio" with 1
+put "editor name: " & field "c_name" of card "Studio" of stack "TTRPG_Studio" & cr after tLog
+put "Mara the Bellringer" into field "c_name" of card "Studio" of stack "TTRPG_Studio"
+set the hilite of button "Keep" of card "Studio" of stack "TTRPG_Studio" to true
+dispatch "St.CharSave" to stack "TTRPG_Studio"
+put "after save: " & field "CharList" of card "Studio" of stack "TTRPG_Studio" & cr after tLog
+dispatch "St.Notes" to stack "TTRPG_Studio"
+put "notes shown: " & the visible of field "Notes" of card "Studio" of stack "TTRPG_Studio" & ", " & line 1 of field "Notes" of card "Studio" of stack "TTRPG_Studio" & cr after tLog
+dispatch "St.Pause" to stack "TTRPG_Studio"
+put "pause shown: " & the visible of group "Pause" of card "Studio" of stack "TTRPG_Studio" & ", max_dm " & field "o_max_dm" of card "Studio" of stack "TTRPG_Studio" & ", ctx " & field "o_ctx" of card "Studio" of stack "TTRPG_Studio" & cr after tLog
+put 150 into field "o_max_dm" of card "Studio" of stack "TTRPG_Studio"
+dispatch "St.Resume" to stack "TTRPG_Studio"
+put "after resume: max_dm " & TTRPG.Cfg.Get("max_dm") & ", pause hidden " & (not the visible of group "Pause" of card "Studio" of stack "TTRPG_Studio") & cr after tLog
+TTRPG.Scene.End empty
+put "Some words" into field "Input" of card "Studio" of stack "TTRPG_Studio"
+dispatch "St.Click" to stack "TTRPG_Studio" with "Skill:Medicine"
+dispatch "St.Click" to stack "TTRPG_Studio" with "Skill:Sleight of Hand"
+put "skill button: " & field "Input" of card "Studio" of stack "TTRPG_Studio" & cr after tLog
+put "skill buttons: " & (there is a button "skill_Survival" of card "Studio" of stack "TTRPG_Studio") & ", sheet Survival field: " & field "s_Survival" of card "Studio" of stack "TTRPG_Studio" & cr after tLog
+put "kept constant file: " & (there is a file Data.Path("Games", "TTRPG/characters/mara_the_bellringer.json")) & cr after tLog
+put "data folder used: " & Data.Root() & cr after tLog
+return tLog

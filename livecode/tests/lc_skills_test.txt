@@ -1,0 +1,75 @@
+-- TTRPG Studio: the skill rule (owner, 15 Nov: "I use Skill X" moves the plot). Same cases as the
+-- Python stub test: a named skill opens its own clue; with none left it gives a lead; a named
+-- social skill presses a secret; plain talk does not roll. No model needed.
+put "/home/igame3d/projects/LIB_TTRPG" into tRoot
+start using stack (tRoot & "/livecode/lib_ttrpg_lm.livecodescript")
+start using stack (tRoot & "/livecode/lib_ttrpg.livecodescript")
+TTRPG.Init empty, "C:/LIB_MCP/ttrpg_skills_" & the milliseconds
+put TTRPG.Player() into tP
+put 0 into tN
+repeat for each key k in tP["skills"]
+  add 1 to tN
+end repeat
+put "player skills: " & tN & cr into tLog
+-- a scene: clue 1 Investigation at the altar, clue 2 Medicine on the body; Mara has a secret
+put 1 into tS["clues"][1]["id"]
+put "the altar" into tS["clues"][1]["where"]
+put "Investigation" into tS["clues"][1]["skill"]
+put "F1" into tS["clues"][1]["fact"]
+put "false" into tS["clues"][1]["found"]
+put 0 into tS["clues"][1]["tries"]
+put 2 into tS["clues"][2]["id"]
+put "the body" into tS["clues"][2]["where"]
+put "Medicine" into tS["clues"][2]["skill"]
+put "F2" into tS["clues"][2]["fact"]
+put "false" into tS["clues"][2]["found"]
+put 0 into tS["clues"][2]["tries"]
+put "mara" into tS["characters"][1]["id"]
+put "Mara" into tS["characters"][1]["name"]
+put "S" into tS["characters"][1]["secret"]
+put "T" into tS["title"]
+set the randomSeed to 5
+put "do" into tR["kind"]
+put "nobody" into tR["who"]
+put "none" into tR["spot"]
+put "Athletics" into tR["skill"]
+put 0 into tHits
+repeat 30
+  TTRPG.Scene.Use tS
+  put TTRPG.Rule(tR, "I use Medicine on the drowned monk", tP) into tX
+  put TTRPG.Scene() into tS2
+  if tX["success"] is "true" and tX["clue"] is 2 and tS2["clues"][2]["found"] is "true" and tS2["clues"][1]["found"] is "false" then add 1 to tHits
+end repeat
+put tX["skill"] = "Medicine" and tHits > 10 into tOk
+put (tOk) & "  Medicine finds the Medicine clue: " & tHits & "/30" & cr after tLog
+TTRPG.Scene.Use tS
+put TTRPG.Rule(tR, "I use History to recall the chapel", tP) into tX
+put (tX["roll"] begins with "History" and (tX["result"] contains "pays off" or tX["result"] contains "nothing useful")) & "  History, no History clue: lead roll: " & char 1 to 60 of tX["result"] & cr after tLog
+put "look" into tR["kind"]
+TTRPG.Scene.Use tS
+put TTRPG.Rule(tR, "I use Religion to study the altar", tP) into tX
+put (tX["result"] contains "discovers" or tX["result"] contains "nothing new") & "  look + Religion still goes for the next clue" & cr after tLog
+put "true" into tS["clues"][1]["found"]
+put "true" into tS["clues"][2]["found"]
+TTRPG.Scene.Use tS
+put TTRPG.Rule(tR, "I use Survival to follow the tracks", tP) into tX
+put (tX["result"] contains "pays off" or tX["result"] contains "nothing useful") & "  all found + named skill: a lead, not a dead end" & cr after tLog
+put TTRPG.Rule(tR, "I look at the walls", tP) into tX
+put (tX["result"] contains "nothing more hidden") & "  all found, no skill named: nothing more hidden" & cr after tLog
+put "talk" into tR["kind"]
+put "Mara" into tR["who"]
+put "Insight" into tR["skill"]
+put TTRPG.Rule(tR, "I use Persuasion: " & quote & "Mara, help me." & quote, tP) into tX
+put (tX["roll"] contains "against 13") & "  named Persuasion presses the secret: " & tX["roll"] & cr after tLog
+put TTRPG.Rule(tR, quote & "Mara, how are you?" & quote, tP) into tX
+put (tX["roll"] is empty) & "  plain talk does not roll" & cr after tLog
+put "true" into tS["characters"][1]["revealed"]
+TTRPG.Scene.Use tS
+put TTRPG.Rule(tR, "I use Persuasion: " & quote & "Mara, tell me more." & quote, tP) into tX
+put (tX["roll"] is empty) & "  no press once the secret is out" & cr after tLog
+put "talk" into tR["kind"]
+put TTRPG.Rule(tR, "I use Investigation: I ask Mara about the creatures", tP) into tX
+put (tX["kind"] is "talk") & "  a named skill + asking a character stays talk" & cr after tLog
+put TTRPG.Rule(tR, "I use Medicine on Mara's wound", tP) into tX
+put (tX["kind"] is "do") & "  a named Medicine on a character is an action" & cr after tLog
+return tLog

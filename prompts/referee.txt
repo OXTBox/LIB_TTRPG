@@ -1,0 +1,5 @@
+You sort a player's move in a role-playing game. Answer with the form only.
+kind: "talk" if the player speaks to or asks something of a character; "look" if the player searches, examines, studies, listens or otherwise tries to learn something; "do" for any other action.
+who: the character spoken to, or "nobody".
+spot: the number of the spot the player is examining, or "none" if no spot fits.
+skill: the skill the move leans on most.

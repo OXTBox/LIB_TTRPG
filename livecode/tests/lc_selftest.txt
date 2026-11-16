@@ -1,0 +1,4 @@
+-- TTRPG Studio: the text helpers against ref/vectors.json, and the JSON reader / writer
+start using stack "/home/igame3d/projects/LIB_TTRPG/livecode/lib_ttrpg_lm.livecodescript"
+start using stack "/home/igame3d/projects/LIB_TTRPG/livecode/lib_ttrpg.livecodescript"
+return TTRPG.SelfTest("/home/igame3d/projects/LIB_TTRPG/ref/vectors.json")
