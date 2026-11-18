@@ -25,7 +25,8 @@ command Build.Studio pDir
    Theme.Begin
    create invisible stack tS
    set the rect of stack tS to 40, 40, 40 + kW, 40 + kH
-   set the title of stack tS to "FOR BILL | New Scene, type an idea, then type what you do"
+   set the title of stack tS to "FOR OWNER | New Scene, type an idea, then type what you do"
+   dispatch "Users.TitleStack" with tS, "New Scene, type an idea, then type what you do"   -- LIB_USERS words it, when in use
    set the textSize of stack tS to 12
    set the resizable of stack tS to false
    set the defaultStack to tS
@@ -328,7 +329,7 @@ command Build.About pStack, pDir
    local tText
    put "Sunday, November 15, 2026" & return & \
          "Stack: TTRPG_Studio" & return & \
-         "Title: FOR BILL | New Scene, type an idea, then type what you do" & return & return & \
+         "Title: FOR OWNER | New Scene, type an idea, then type what you do" & return & return & \
          "WHAT IT IS FOR" & return & \
          "A small role-playing table run by local models in LM Studio. You pick one or two light models, give a " & \
          "one-line scene idea, and play by typing what your character does. The narrator plays a Lazy DM: a short " & \
