@@ -90,8 +90,10 @@ Branch `ttrpg-studio-1` (already made). Commit as you go. The owner merges.
    `InterpregPlayerAction` and its callers; the `LM_Init` URL is `127.0.01` (a typo that happens
    to work); `GetFirsgWorldAssets`; four fields named `WeaponField1`. Its LM handlers
    (`LM_Init`, `LM_BuildRequestJSON`, `LM_TestConnection`) are replaced by step 1, not carried.
-   Its `nouns` and `roles` sets go to LIB_GENERICA label files; they can then seed scene ideas
-   and character asks.
+   Its `nouns` and `roles` sets go to **LIB_LISTS** (`<set>/<list>.txt`, added to its CATALOG.md;
+   moved by a script that counts lines and never prints the words), and LIB_GENERICA **refers** to
+   them by name (owner, 18 Nov: "the LIST might grow/change outside of the sub-projects that use
+   them"; TODO A-66). They can then seed scene ideas and character asks.
 
 ## The owner's test maps to
 
