@@ -225,6 +225,8 @@ command Build.Studio pDir
    put the result into tErr
    Build.Substack tS, "TTRPG_Studio_engine", pDir & "/livecode/lib_ttrpg.livecodescript"
    put the result after tErr
+   Build.Substack tS, "TTRPG_Studio_world", pDir & "/livecode/lib_ttrpg_world.livecodescript"
+   put the result after tErr
    set the itemDel to "/"
    put item 1 to -2 of pDir & "/LIB_DATA/livecode/lib_data.livecodescript" into tF
    set the itemDel to comma

@@ -83,7 +83,7 @@ Branch `ttrpg-studio-1` (already made). Commit as you go. The owner merges.
    as Voices if memory allows. Record what was tried in `TUNING.md`.
 8. **Hand over**: stack in `LIB_TEST/`, title `FOR BILL | New Scene, type an idea, then type what
    you do`, every new file through `python3 -I ~/projects/LIB_DEV/tools/for_review.py add`.
-9. **Later, not now**: carry the old studio's world / actor / item handlers into
+9. **DONE 19 Nov 2026** (branch `ttrpg-world-code`, see `livecode/WORLD_PORT.md`): carry the old studio's world / actor / item handlers into
    `livecode/lib_ttrpg_world.livecodescript` (from `XTJSON/batch/TTRPG_STUDIO_020920229AM/scripts/
    TTRPGtudioapilib_02092026__stack.livecodescript`), fixing as they are touched: the second
    `SaveWorldObjectToJSON` (line 361) and `init.globals` shadow earlier copies; rename
