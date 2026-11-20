@@ -43,3 +43,9 @@ Status (15 Nov 2026): the terminal engine and the stack's engine both pass the o
 6 (gemma-2-2b alone; gemma + lfm3-omni-2b; a Voices model that will not load falls back to one).
 The stack's engine was tested headless (`livecode/tests/`); the window itself has not been seen on a
 screen yet. Tuning results: `TUNING.md`.
+
+## Licence
+
+GPL-3.0 (see `LICENSE`), because the xTalk work here is built on the GPL-licensed LiveCode Community 9 engine. Copyright (c) 2026 xAction.
+
+The Python files (`.py`) and other material that is not xTalk are also offered under the MIT licence, Copyright (c) 2026 xAction: you may use them under either licence.
