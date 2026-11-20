@@ -1,5 +1,17 @@
 # LIB_TTRPG: where we left off (come back here)
 
+## 19 Nov 2026 evening: the old studio's world code is in (branch `ttrpg-world-code`, not merged)
+- `ref/ttrpg_world.py` (spec) + `livecode/lib_ttrpg_world.livecodescript` (port), same answers on
+  `ref/world_vectors.json`. Map of what became of each old handler: `livecode/WORLD_PORT.md`.
+- Try it in a terminal: `python3 ref/ttrpg_world.py new` then `python3 ref/ttrpg_world.py play`
+  (look, take, drop, open, close, search, n/s/e/w, `idea` = a New Scene idea from where you stand, q).
+- Tests: `python3 ref/ttrpg_world.py test`; `lc_world_test.txt` headless. Studio tests still pass;
+  the library is a substack of the rebuilt `TTRPG_Studio.livecode` but no button uses it yet.
+- Next (ask the owner): a World panel in the Studio (New World, the view, "Scene here" = SceneIdea ->
+  New Scene, NPCs here -> Add Character), and world actions tried before the referee each turn.
+- NOTE: `python3 ref/ttrpg_ref.py test` is the LIVE test: it loads gemma-2-2b. Do not use it as a quick check.
+
+
 Sunday, November 15, 2026, written by Opus at the owner's request before a /clear.
 Branch `ttrpg-studio-1` (LIB_TTRPG and LIB_TEST); nothing merged; all models unloaded.
 
@@ -24,7 +36,7 @@ Branch `ttrpg-studio-1` (LIB_TTRPG and LIB_TEST); nothing merged; all models unl
 4. Narrator leftovers: "You see:", "The player sees...", "Wren ... she" -> clean in code.
 5. The self-play player uses only its best skills: tell it which skills it has not tried yet.
 6. The risky-verb list matches "run my fingers" (drop "run" unless "run to / away / from").
-7. Later (OPUS_BUILD step 9): carry the old studio's world / item code.
+7. DONE 19 Nov: the old studio's world / item code (see the top).
 
 ## Machine limits (owner)
 gemma-2-2b alone is comfortable. qwen-7B + a 2B pushed memory to 95%. 13B is out of reach. Ask before loading.

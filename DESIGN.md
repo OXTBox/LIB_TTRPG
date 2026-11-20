@@ -129,4 +129,5 @@ user, reply, finish, error, seconds. This is the tuning record.
 ## Not in iteration 1
 
 Maps, combat, inventories, PROMPT & GLAZE hook-up, audio. The harvested world / item code
-(`XTJSON/batch/TTRPG_STUDIO_020920229AM`) is not carried into this repo yet: see `OPUS_BUILD.md` step 9.
+(`XTJSON/batch/TTRPG_STUDIO_020920229AM`) was carried in on 19 Nov 2026: `ref/ttrpg_world.py`, `livecode/lib_ttrpg_world.livecodescript`,
+`livecode/WORLD_PORT.md`. Not yet wired into the Studio window.

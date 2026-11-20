@@ -1,0 +1,2924 @@
+{
+ "cell_of": [
+  [
+   "House_c3r12",
+   [
+    3,
+    12
+   ]
+  ],
+  [
+   "c1r1",
+   [
+    1,
+    1
+   ]
+  ],
+  [
+   "Big_Old_House_c10r5",
+   [
+    10,
+    5
+   ]
+  ],
+  [
+   "nothing",
+   []
+  ],
+  [
+   "",
+   []
+  ]
+ ],
+ "best_match": [
+  [
+   [
+    "Iron Chest",
+    "Crate",
+    "Old Iron Box"
+   ],
+   "open the iron box",
+   "Old Iron Box"
+  ],
+  [
+   [
+    "Iron Chest",
+    "Crate",
+    "Old Iron Box"
+   ],
+   "open the chest",
+   "Iron Chest"
+  ],
+  [
+   [
+    "Iron Chest",
+    "Crate",
+    "Old Iron Box"
+   ],
+   "kick it",
+   ""
+  ],
+  [
+   [
+    "Iron Chest",
+    "Crate",
+    "Old Iron Box"
+   ],
+   "old crate please",
+   "Crate"
+  ]
+ ],
+ "join_and": [
+  [
+   [],
+   ""
+  ],
+  [
+   [
+    "a"
+   ],
+   "a"
+  ],
+  [
+   [
+    "a",
+    "b"
+   ],
+   "a and b"
+  ],
+  [
+   [
+    "a",
+    "b",
+    "c"
+   ],
+   "a, b and c"
+  ]
+ ],
+ "start": {
+  "name": "Vector_World",
+  "cols": 2,
+  "rows": 2,
+  "locations": {
+   "Old_Mill_c1r1": {
+    "name": "Old_Mill_c1r1",
+    "kind": "Old Mill",
+    "col": 1,
+    "row": 1,
+    "ecosystem": "damp moss",
+    "description": "A wheel creaks in the dark.",
+    "containers": {
+     "Iron Chest": {
+      "name": "Iron Chest",
+      "open": true,
+      "locked": false,
+      "visible": true,
+      "items": {
+       "Rope": {
+        "name": "Rope",
+        "visible": true
+       },
+       "Silver Key": {
+        "name": "Silver Key",
+        "visible": false
+       }
+      }
+     },
+     "Crate": {
+      "name": "Crate",
+      "open": false,
+      "locked": false,
+      "visible": true,
+      "items": {
+       "Lantern": {
+        "name": "Lantern",
+        "visible": true
+       }
+      }
+     }
+    }
+   },
+   "Bog_c2r1": {
+    "name": "Bog_c2r1",
+    "kind": "Bog",
+    "col": 2,
+    "row": 1,
+    "ecosystem": "rot",
+    "description": "",
+    "containers": {
+     "Sack": {
+      "name": "Sack",
+      "open": false,
+      "locked": true,
+      "visible": true,
+      "items": {
+       "Gold Coin": {
+        "name": "Gold Coin",
+        "visible": true
+       }
+      }
+     }
+    }
+   },
+   "Tower_c1r2": {
+    "name": "Tower_c1r2",
+    "kind": "Tower",
+    "col": 1,
+    "row": 2,
+    "ecosystem": "",
+    "description": "Stairs go up.",
+    "containers": {}
+   }
+  },
+  "npc": {
+   "Old_Miller_c1r1": {
+    "name": "Old_Miller_c1r1",
+    "role": "Old_Miller",
+    "lore": "Grinds bones, not wheat.",
+    "location": "Old_Mill_c1r1",
+    "attributes": {},
+    "containers": {}
+   }
+  },
+  "monsters": {
+   "Bog_Toad_c2r1": {
+    "name": "Bog_Toad_c2r1",
+    "kind": "Bog Toad",
+    "location": "Bog_c2r1",
+    "attributes": {}
+   }
+  },
+  "player": {
+   "Player1": {
+    "name": "Player1",
+    "location": "Old_Mill_c1r1",
+    "attributes": {},
+    "containers": {
+     "Backpack": {
+      "name": "Backpack",
+      "open": true,
+      "locked": false,
+      "visible": true,
+      "items": {
+       "Torch": {
+        "name": "Torch",
+        "visible": true
+       }
+      }
+     }
+    }
+   }
+  }
+ },
+ "steps": [
+  {
+   "action": "look",
+   "reply": "You are at: Old Mill (column 1, row 1)\nA wheel creaks in the dark.\nThe air carries a sense of damp moss.\nHere: Old Miller.\nContainers: Crate (closed) and Iron Chest (open).\nYou can see: Rope in the Iron Chest.\nYou carry: Backpack: Torch.\nWays out: south and east.",
+   "world": {
+    "name": "Vector_World",
+    "cols": 2,
+    "rows": 2,
+    "locations": {
+     "Old_Mill_c1r1": {
+      "name": "Old_Mill_c1r1",
+      "kind": "Old Mill",
+      "col": 1,
+      "row": 1,
+      "ecosystem": "damp moss",
+      "description": "A wheel creaks in the dark.",
+      "containers": {
+       "Iron Chest": {
+        "name": "Iron Chest",
+        "open": true,
+        "locked": false,
+        "visible": true,
+        "items": {
+         "Rope": {
+          "name": "Rope",
+          "visible": true
+         },
+         "Silver Key": {
+          "name": "Silver Key",
+          "visible": false
+         }
+        }
+       },
+       "Crate": {
+        "name": "Crate",
+        "open": false,
+        "locked": false,
+        "visible": true,
+        "items": {
+         "Lantern": {
+          "name": "Lantern",
+          "visible": true
+         }
+        }
+       }
+      }
+     },
+     "Bog_c2r1": {
+      "name": "Bog_c2r1",
+      "kind": "Bog",
+      "col": 2,
+      "row": 1,
+      "ecosystem": "rot",
+      "description": "",
+      "containers": {
+       "Sack": {
+        "name": "Sack",
+        "open": false,
+        "locked": true,
+        "visible": true,
+        "items": {
+         "Gold Coin": {
+          "name": "Gold Coin",
+          "visible": true
+         }
+        }
+       }
+      }
+     },
+     "Tower_c1r2": {
+      "name": "Tower_c1r2",
+      "kind": "Tower",
+      "col": 1,
+      "row": 2,
+      "ecosystem": "",
+      "description": "Stairs go up.",
+      "containers": {}
+     }
+    },
+    "npc": {
+     "Old_Miller_c1r1": {
+      "name": "Old_Miller_c1r1",
+      "role": "Old_Miller",
+      "lore": "Grinds bones, not wheat.",
+      "location": "Old_Mill_c1r1",
+      "attributes": {},
+      "containers": {}
+     }
+    },
+    "monsters": {
+     "Bog_Toad_c2r1": {
+      "name": "Bog_Toad_c2r1",
+      "kind": "Bog Toad",
+      "location": "Bog_c2r1",
+      "attributes": {}
+     }
+    },
+    "player": {
+     "Player1": {
+      "name": "Player1",
+      "location": "Old_Mill_c1r1",
+      "attributes": {},
+      "containers": {
+       "Backpack": {
+        "name": "Backpack",
+        "open": true,
+        "locked": false,
+        "visible": true,
+        "items": {
+         "Torch": {
+          "name": "Torch",
+          "visible": true
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  {
+   "action": "take the rope",
+   "reply": "You take the Rope from the Iron Chest.",
+   "world": {
+    "name": "Vector_World",
+    "cols": 2,
+    "rows": 2,
+    "locations": {
+     "Old_Mill_c1r1": {
+      "name": "Old_Mill_c1r1",
+      "kind": "Old Mill",
+      "col": 1,
+      "row": 1,
+      "ecosystem": "damp moss",
+      "description": "A wheel creaks in the dark.",
+      "containers": {
+       "Iron Chest": {
+        "name": "Iron Chest",
+        "open": true,
+        "locked": false,
+        "visible": true,
+        "items": {
+         "Silver Key": {
+          "name": "Silver Key",
+          "visible": false
+         }
+        }
+       },
+       "Crate": {
+        "name": "Crate",
+        "open": false,
+        "locked": false,
+        "visible": true,
+        "items": {
+         "Lantern": {
+          "name": "Lantern",
+          "visible": true
+         }
+        }
+       }
+      }
+     },
+     "Bog_c2r1": {
+      "name": "Bog_c2r1",
+      "kind": "Bog",
+      "col": 2,
+      "row": 1,
+      "ecosystem": "rot",
+      "description": "",
+      "containers": {
+       "Sack": {
+        "name": "Sack",
+        "open": false,
+        "locked": true,
+        "visible": true,
+        "items": {
+         "Gold Coin": {
+          "name": "Gold Coin",
+          "visible": true
+         }
+        }
+       }
+      }
+     },
+     "Tower_c1r2": {
+      "name": "Tower_c1r2",
+      "kind": "Tower",
+      "col": 1,
+      "row": 2,
+      "ecosystem": "",
+      "description": "Stairs go up.",
+      "containers": {}
+     }
+    },
+    "npc": {
+     "Old_Miller_c1r1": {
+      "name": "Old_Miller_c1r1",
+      "role": "Old_Miller",
+      "lore": "Grinds bones, not wheat.",
+      "location": "Old_Mill_c1r1",
+      "attributes": {},
+      "containers": {}
+     }
+    },
+    "monsters": {
+     "Bog_Toad_c2r1": {
+      "name": "Bog_Toad_c2r1",
+      "kind": "Bog Toad",
+      "location": "Bog_c2r1",
+      "attributes": {}
+     }
+    },
+    "player": {
+     "Player1": {
+      "name": "Player1",
+      "location": "Old_Mill_c1r1",
+      "attributes": {},
+      "containers": {
+       "Backpack": {
+        "name": "Backpack",
+        "open": true,
+        "locked": false,
+        "visible": true,
+        "items": {
+         "Torch": {
+          "name": "Torch",
+          "visible": true
+         },
+         "Rope": {
+          "name": "Rope",
+          "visible": true
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  {
+   "action": "take the key",
+   "reply": "You see nothing like that to take.",
+   "world": {
+    "name": "Vector_World",
+    "cols": 2,
+    "rows": 2,
+    "locations": {
+     "Old_Mill_c1r1": {
+      "name": "Old_Mill_c1r1",
+      "kind": "Old Mill",
+      "col": 1,
+      "row": 1,
+      "ecosystem": "damp moss",
+      "description": "A wheel creaks in the dark.",
+      "containers": {
+       "Iron Chest": {
+        "name": "Iron Chest",
+        "open": true,
+        "locked": false,
+        "visible": true,
+        "items": {
+         "Silver Key": {
+          "name": "Silver Key",
+          "visible": false
+         }
+        }
+       },
+       "Crate": {
+        "name": "Crate",
+        "open": false,
+        "locked": false,
+        "visible": true,
+        "items": {
+         "Lantern": {
+          "name": "Lantern",
+          "visible": true
+         }
+        }
+       }
+      }
+     },
+     "Bog_c2r1": {
+      "name": "Bog_c2r1",
+      "kind": "Bog",
+      "col": 2,
+      "row": 1,
+      "ecosystem": "rot",
+      "description": "",
+      "containers": {
+       "Sack": {
+        "name": "Sack",
+        "open": false,
+        "locked": true,
+        "visible": true,
+        "items": {
+         "Gold Coin": {
+          "name": "Gold Coin",
+          "visible": true
+         }
+        }
+       }
+      }
+     },
+     "Tower_c1r2": {
+      "name": "Tower_c1r2",
+      "kind": "Tower",
+      "col": 1,
+      "row": 2,
+      "ecosystem": "",
+      "description": "Stairs go up.",
+      "containers": {}
+     }
+    },
+    "npc": {
+     "Old_Miller_c1r1": {
+      "name": "Old_Miller_c1r1",
+      "role": "Old_Miller",
+      "lore": "Grinds bones, not wheat.",
+      "location": "Old_Mill_c1r1",
+      "attributes": {},
+      "containers": {}
+     }
+    },
+    "monsters": {
+     "Bog_Toad_c2r1": {
+      "name": "Bog_Toad_c2r1",
+      "kind": "Bog Toad",
+      "location": "Bog_c2r1",
+      "attributes": {}
+     }
+    },
+    "player": {
+     "Player1": {
+      "name": "Player1",
+      "location": "Old_Mill_c1r1",
+      "attributes": {},
+      "containers": {
+       "Backpack": {
+        "name": "Backpack",
+        "open": true,
+        "locked": false,
+        "visible": true,
+        "items": {
+         "Torch": {
+          "name": "Torch",
+          "visible": true
+         },
+         "Rope": {
+          "name": "Rope",
+          "visible": true
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  {
+   "action": "search the chest",
+   "reply": "You search and find Silver Key in the Iron Chest.",
+   "world": {
+    "name": "Vector_World",
+    "cols": 2,
+    "rows": 2,
+    "locations": {
+     "Old_Mill_c1r1": {
+      "name": "Old_Mill_c1r1",
+      "kind": "Old Mill",
+      "col": 1,
+      "row": 1,
+      "ecosystem": "damp moss",
+      "description": "A wheel creaks in the dark.",
+      "containers": {
+       "Iron Chest": {
+        "name": "Iron Chest",
+        "open": true,
+        "locked": false,
+        "visible": true,
+        "items": {
+         "Silver Key": {
+          "name": "Silver Key",
+          "visible": true
+         }
+        }
+       },
+       "Crate": {
+        "name": "Crate",
+        "open": false,
+        "locked": false,
+        "visible": true,
+        "items": {
+         "Lantern": {
+          "name": "Lantern",
+          "visible": true
+         }
+        }
+       }
+      }
+     },
+     "Bog_c2r1": {
+      "name": "Bog_c2r1",
+      "kind": "Bog",
+      "col": 2,
+      "row": 1,
+      "ecosystem": "rot",
+      "description": "",
+      "containers": {
+       "Sack": {
+        "name": "Sack",
+        "open": false,
+        "locked": true,
+        "visible": true,
+        "items": {
+         "Gold Coin": {
+          "name": "Gold Coin",
+          "visible": true
+         }
+        }
+       }
+      }
+     },
+     "Tower_c1r2": {
+      "name": "Tower_c1r2",
+      "kind": "Tower",
+      "col": 1,
+      "row": 2,
+      "ecosystem": "",
+      "description": "Stairs go up.",
+      "containers": {}
+     }
+    },
+    "npc": {
+     "Old_Miller_c1r1": {
+      "name": "Old_Miller_c1r1",
+      "role": "Old_Miller",
+      "lore": "Grinds bones, not wheat.",
+      "location": "Old_Mill_c1r1",
+      "attributes": {},
+      "containers": {}
+     }
+    },
+    "monsters": {
+     "Bog_Toad_c2r1": {
+      "name": "Bog_Toad_c2r1",
+      "kind": "Bog Toad",
+      "location": "Bog_c2r1",
+      "attributes": {}
+     }
+    },
+    "player": {
+     "Player1": {
+      "name": "Player1",
+      "location": "Old_Mill_c1r1",
+      "attributes": {},
+      "containers": {
+       "Backpack": {
+        "name": "Backpack",
+        "open": true,
+        "locked": false,
+        "visible": true,
+        "items": {
+         "Torch": {
+          "name": "Torch",
+          "visible": true
+         },
+         "Rope": {
+          "name": "Rope",
+          "visible": true
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  {
+   "action": "take the silver key",
+   "reply": "You take the Silver Key from the Iron Chest.",
+   "world": {
+    "name": "Vector_World",
+    "cols": 2,
+    "rows": 2,
+    "locations": {
+     "Old_Mill_c1r1": {
+      "name": "Old_Mill_c1r1",
+      "kind": "Old Mill",
+      "col": 1,
+      "row": 1,
+      "ecosystem": "damp moss",
+      "description": "A wheel creaks in the dark.",
+      "containers": {
+       "Iron Chest": {
+        "name": "Iron Chest",
+        "open": true,
+        "locked": false,
+        "visible": true,
+        "items": {}
+       },
+       "Crate": {
+        "name": "Crate",
+        "open": false,
+        "locked": false,
+        "visible": true,
+        "items": {
+         "Lantern": {
+          "name": "Lantern",
+          "visible": true
+         }
+        }
+       }
+      }
+     },
+     "Bog_c2r1": {
+      "name": "Bog_c2r1",
+      "kind": "Bog",
+      "col": 2,
+      "row": 1,
+      "ecosystem": "rot",
+      "description": "",
+      "containers": {
+       "Sack": {
+        "name": "Sack",
+        "open": false,
+        "locked": true,
+        "visible": true,
+        "items": {
+         "Gold Coin": {
+          "name": "Gold Coin",
+          "visible": true
+         }
+        }
+       }
+      }
+     },
+     "Tower_c1r2": {
+      "name": "Tower_c1r2",
+      "kind": "Tower",
+      "col": 1,
+      "row": 2,
+      "ecosystem": "",
+      "description": "Stairs go up.",
+      "containers": {}
+     }
+    },
+    "npc": {
+     "Old_Miller_c1r1": {
+      "name": "Old_Miller_c1r1",
+      "role": "Old_Miller",
+      "lore": "Grinds bones, not wheat.",
+      "location": "Old_Mill_c1r1",
+      "attributes": {},
+      "containers": {}
+     }
+    },
+    "monsters": {
+     "Bog_Toad_c2r1": {
+      "name": "Bog_Toad_c2r1",
+      "kind": "Bog Toad",
+      "location": "Bog_c2r1",
+      "attributes": {}
+     }
+    },
+    "player": {
+     "Player1": {
+      "name": "Player1",
+      "location": "Old_Mill_c1r1",
+      "attributes": {},
+      "containers": {
+       "Backpack": {
+        "name": "Backpack",
+        "open": true,
+        "locked": false,
+        "visible": true,
+        "items": {
+         "Torch": {
+          "name": "Torch",
+          "visible": true
+         },
+         "Rope": {
+          "name": "Rope",
+          "visible": true
+         },
+         "Silver Key": {
+          "name": "Silver Key",
+          "visible": true
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  {
+   "action": "open the crate",
+   "reply": "You open the Crate. Inside: Lantern.",
+   "world": {
+    "name": "Vector_World",
+    "cols": 2,
+    "rows": 2,
+    "locations": {
+     "Old_Mill_c1r1": {
+      "name": "Old_Mill_c1r1",
+      "kind": "Old Mill",
+      "col": 1,
+      "row": 1,
+      "ecosystem": "damp moss",
+      "description": "A wheel creaks in the dark.",
+      "containers": {
+       "Iron Chest": {
+        "name": "Iron Chest",
+        "open": true,
+        "locked": false,
+        "visible": true,
+        "items": {}
+       },
+       "Crate": {
+        "name": "Crate",
+        "open": true,
+        "locked": false,
+        "visible": true,
+        "items": {
+         "Lantern": {
+          "name": "Lantern",
+          "visible": true
+         }
+        }
+       }
+      }
+     },
+     "Bog_c2r1": {
+      "name": "Bog_c2r1",
+      "kind": "Bog",
+      "col": 2,
+      "row": 1,
+      "ecosystem": "rot",
+      "description": "",
+      "containers": {
+       "Sack": {
+        "name": "Sack",
+        "open": false,
+        "locked": true,
+        "visible": true,
+        "items": {
+         "Gold Coin": {
+          "name": "Gold Coin",
+          "visible": true
+         }
+        }
+       }
+      }
+     },
+     "Tower_c1r2": {
+      "name": "Tower_c1r2",
+      "kind": "Tower",
+      "col": 1,
+      "row": 2,
+      "ecosystem": "",
+      "description": "Stairs go up.",
+      "containers": {}
+     }
+    },
+    "npc": {
+     "Old_Miller_c1r1": {
+      "name": "Old_Miller_c1r1",
+      "role": "Old_Miller",
+      "lore": "Grinds bones, not wheat.",
+      "location": "Old_Mill_c1r1",
+      "attributes": {},
+      "containers": {}
+     }
+    },
+    "monsters": {
+     "Bog_Toad_c2r1": {
+      "name": "Bog_Toad_c2r1",
+      "kind": "Bog Toad",
+      "location": "Bog_c2r1",
+      "attributes": {}
+     }
+    },
+    "player": {
+     "Player1": {
+      "name": "Player1",
+      "location": "Old_Mill_c1r1",
+      "attributes": {},
+      "containers": {
+       "Backpack": {
+        "name": "Backpack",
+        "open": true,
+        "locked": false,
+        "visible": true,
+        "items": {
+         "Torch": {
+          "name": "Torch",
+          "visible": true
+         },
+         "Rope": {
+          "name": "Rope",
+          "visible": true
+         },
+         "Silver Key": {
+          "name": "Silver Key",
+          "visible": true
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  {
+   "action": "open the crate",
+   "reply": "The Crate is already open.",
+   "world": {
+    "name": "Vector_World",
+    "cols": 2,
+    "rows": 2,
+    "locations": {
+     "Old_Mill_c1r1": {
+      "name": "Old_Mill_c1r1",
+      "kind": "Old Mill",
+      "col": 1,
+      "row": 1,
+      "ecosystem": "damp moss",
+      "description": "A wheel creaks in the dark.",
+      "containers": {
+       "Iron Chest": {
+        "name": "Iron Chest",
+        "open": true,
+        "locked": false,
+        "visible": true,
+        "items": {}
+       },
+       "Crate": {
+        "name": "Crate",
+        "open": true,
+        "locked": false,
+        "visible": true,
+        "items": {
+         "Lantern": {
+          "name": "Lantern",
+          "visible": true
+         }
+        }
+       }
+      }
+     },
+     "Bog_c2r1": {
+      "name": "Bog_c2r1",
+      "kind": "Bog",
+      "col": 2,
+      "row": 1,
+      "ecosystem": "rot",
+      "description": "",
+      "containers": {
+       "Sack": {
+        "name": "Sack",
+        "open": false,
+        "locked": true,
+        "visible": true,
+        "items": {
+         "Gold Coin": {
+          "name": "Gold Coin",
+          "visible": true
+         }
+        }
+       }
+      }
+     },
+     "Tower_c1r2": {
+      "name": "Tower_c1r2",
+      "kind": "Tower",
+      "col": 1,
+      "row": 2,
+      "ecosystem": "",
+      "description": "Stairs go up.",
+      "containers": {}
+     }
+    },
+    "npc": {
+     "Old_Miller_c1r1": {
+      "name": "Old_Miller_c1r1",
+      "role": "Old_Miller",
+      "lore": "Grinds bones, not wheat.",
+      "location": "Old_Mill_c1r1",
+      "attributes": {},
+      "containers": {}
+     }
+    },
+    "monsters": {
+     "Bog_Toad_c2r1": {
+      "name": "Bog_Toad_c2r1",
+      "kind": "Bog Toad",
+      "location": "Bog_c2r1",
+      "attributes": {}
+     }
+    },
+    "player": {
+     "Player1": {
+      "name": "Player1",
+      "location": "Old_Mill_c1r1",
+      "attributes": {},
+      "containers": {
+       "Backpack": {
+        "name": "Backpack",
+        "open": true,
+        "locked": false,
+        "visible": true,
+        "items": {
+         "Torch": {
+          "name": "Torch",
+          "visible": true
+         },
+         "Rope": {
+          "name": "Rope",
+          "visible": true
+         },
+         "Silver Key": {
+          "name": "Silver Key",
+          "visible": true
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  {
+   "action": "grab lantern",
+   "reply": "You take the Lantern from the Crate.",
+   "world": {
+    "name": "Vector_World",
+    "cols": 2,
+    "rows": 2,
+    "locations": {
+     "Old_Mill_c1r1": {
+      "name": "Old_Mill_c1r1",
+      "kind": "Old Mill",
+      "col": 1,
+      "row": 1,
+      "ecosystem": "damp moss",
+      "description": "A wheel creaks in the dark.",
+      "containers": {
+       "Iron Chest": {
+        "name": "Iron Chest",
+        "open": true,
+        "locked": false,
+        "visible": true,
+        "items": {}
+       },
+       "Crate": {
+        "name": "Crate",
+        "open": true,
+        "locked": false,
+        "visible": true,
+        "items": {}
+       }
+      }
+     },
+     "Bog_c2r1": {
+      "name": "Bog_c2r1",
+      "kind": "Bog",
+      "col": 2,
+      "row": 1,
+      "ecosystem": "rot",
+      "description": "",
+      "containers": {
+       "Sack": {
+        "name": "Sack",
+        "open": false,
+        "locked": true,
+        "visible": true,
+        "items": {
+         "Gold Coin": {
+          "name": "Gold Coin",
+          "visible": true
+         }
+        }
+       }
+      }
+     },
+     "Tower_c1r2": {
+      "name": "Tower_c1r2",
+      "kind": "Tower",
+      "col": 1,
+      "row": 2,
+      "ecosystem": "",
+      "description": "Stairs go up.",
+      "containers": {}
+     }
+    },
+    "npc": {
+     "Old_Miller_c1r1": {
+      "name": "Old_Miller_c1r1",
+      "role": "Old_Miller",
+      "lore": "Grinds bones, not wheat.",
+      "location": "Old_Mill_c1r1",
+      "attributes": {},
+      "containers": {}
+     }
+    },
+    "monsters": {
+     "Bog_Toad_c2r1": {
+      "name": "Bog_Toad_c2r1",
+      "kind": "Bog Toad",
+      "location": "Bog_c2r1",
+      "attributes": {}
+     }
+    },
+    "player": {
+     "Player1": {
+      "name": "Player1",
+      "location": "Old_Mill_c1r1",
+      "attributes": {},
+      "containers": {
+       "Backpack": {
+        "name": "Backpack",
+        "open": true,
+        "locked": false,
+        "visible": true,
+        "items": {
+         "Torch": {
+          "name": "Torch",
+          "visible": true
+         },
+         "Rope": {
+          "name": "Rope",
+          "visible": true
+         },
+         "Silver Key": {
+          "name": "Silver Key",
+          "visible": true
+         },
+         "Lantern": {
+          "name": "Lantern",
+          "visible": true
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  {
+   "action": "close the crate",
+   "reply": "You close the Crate.",
+   "world": {
+    "name": "Vector_World",
+    "cols": 2,
+    "rows": 2,
+    "locations": {
+     "Old_Mill_c1r1": {
+      "name": "Old_Mill_c1r1",
+      "kind": "Old Mill",
+      "col": 1,
+      "row": 1,
+      "ecosystem": "damp moss",
+      "description": "A wheel creaks in the dark.",
+      "containers": {
+       "Iron Chest": {
+        "name": "Iron Chest",
+        "open": true,
+        "locked": false,
+        "visible": true,
+        "items": {}
+       },
+       "Crate": {
+        "name": "Crate",
+        "open": false,
+        "locked": false,
+        "visible": true,
+        "items": {}
+       }
+      }
+     },
+     "Bog_c2r1": {
+      "name": "Bog_c2r1",
+      "kind": "Bog",
+      "col": 2,
+      "row": 1,
+      "ecosystem": "rot",
+      "description": "",
+      "containers": {
+       "Sack": {
+        "name": "Sack",
+        "open": false,
+        "locked": true,
+        "visible": true,
+        "items": {
+         "Gold Coin": {
+          "name": "Gold Coin",
+          "visible": true
+         }
+        }
+       }
+      }
+     },
+     "Tower_c1r2": {
+      "name": "Tower_c1r2",
+      "kind": "Tower",
+      "col": 1,
+      "row": 2,
+      "ecosystem": "",
+      "description": "Stairs go up.",
+      "containers": {}
+     }
+    },
+    "npc": {
+     "Old_Miller_c1r1": {
+      "name": "Old_Miller_c1r1",
+      "role": "Old_Miller",
+      "lore": "Grinds bones, not wheat.",
+      "location": "Old_Mill_c1r1",
+      "attributes": {},
+      "containers": {}
+     }
+    },
+    "monsters": {
+     "Bog_Toad_c2r1": {
+      "name": "Bog_Toad_c2r1",
+      "kind": "Bog Toad",
+      "location": "Bog_c2r1",
+      "attributes": {}
+     }
+    },
+    "player": {
+     "Player1": {
+      "name": "Player1",
+      "location": "Old_Mill_c1r1",
+      "attributes": {},
+      "containers": {
+       "Backpack": {
+        "name": "Backpack",
+        "open": true,
+        "locked": false,
+        "visible": true,
+        "items": {
+         "Torch": {
+          "name": "Torch",
+          "visible": true
+         },
+         "Rope": {
+          "name": "Rope",
+          "visible": true
+         },
+         "Silver Key": {
+          "name": "Silver Key",
+          "visible": true
+         },
+         "Lantern": {
+          "name": "Lantern",
+          "visible": true
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  {
+   "action": "drop the torch",
+   "reply": "You drop the Torch.",
+   "world": {
+    "name": "Vector_World",
+    "cols": 2,
+    "rows": 2,
+    "locations": {
+     "Old_Mill_c1r1": {
+      "name": "Old_Mill_c1r1",
+      "kind": "Old Mill",
+      "col": 1,
+      "row": 1,
+      "ecosystem": "damp moss",
+      "description": "A wheel creaks in the dark.",
+      "containers": {
+       "Iron Chest": {
+        "name": "Iron Chest",
+        "open": true,
+        "locked": false,
+        "visible": true,
+        "items": {}
+       },
+       "Crate": {
+        "name": "Crate",
+        "open": false,
+        "locked": false,
+        "visible": true,
+        "items": {}
+       },
+       "ground": {
+        "name": "ground",
+        "open": true,
+        "locked": false,
+        "visible": true,
+        "items": {
+         "Torch": {
+          "name": "Torch",
+          "visible": true
+         }
+        }
+       }
+      }
+     },
+     "Bog_c2r1": {
+      "name": "Bog_c2r1",
+      "kind": "Bog",
+      "col": 2,
+      "row": 1,
+      "ecosystem": "rot",
+      "description": "",
+      "containers": {
+       "Sack": {
+        "name": "Sack",
+        "open": false,
+        "locked": true,
+        "visible": true,
+        "items": {
+         "Gold Coin": {
+          "name": "Gold Coin",
+          "visible": true
+         }
+        }
+       }
+      }
+     },
+     "Tower_c1r2": {
+      "name": "Tower_c1r2",
+      "kind": "Tower",
+      "col": 1,
+      "row": 2,
+      "ecosystem": "",
+      "description": "Stairs go up.",
+      "containers": {}
+     }
+    },
+    "npc": {
+     "Old_Miller_c1r1": {
+      "name": "Old_Miller_c1r1",
+      "role": "Old_Miller",
+      "lore": "Grinds bones, not wheat.",
+      "location": "Old_Mill_c1r1",
+      "attributes": {},
+      "containers": {}
+     }
+    },
+    "monsters": {
+     "Bog_Toad_c2r1": {
+      "name": "Bog_Toad_c2r1",
+      "kind": "Bog Toad",
+      "location": "Bog_c2r1",
+      "attributes": {}
+     }
+    },
+    "player": {
+     "Player1": {
+      "name": "Player1",
+      "location": "Old_Mill_c1r1",
+      "attributes": {},
+      "containers": {
+       "Backpack": {
+        "name": "Backpack",
+        "open": true,
+        "locked": false,
+        "visible": true,
+        "items": {
+         "Rope": {
+          "name": "Rope",
+          "visible": true
+         },
+         "Silver Key": {
+          "name": "Silver Key",
+          "visible": true
+         },
+         "Lantern": {
+          "name": "Lantern",
+          "visible": true
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  {
+   "action": "take torch",
+   "reply": "You take the Torch from the ground.",
+   "world": {
+    "name": "Vector_World",
+    "cols": 2,
+    "rows": 2,
+    "locations": {
+     "Old_Mill_c1r1": {
+      "name": "Old_Mill_c1r1",
+      "kind": "Old Mill",
+      "col": 1,
+      "row": 1,
+      "ecosystem": "damp moss",
+      "description": "A wheel creaks in the dark.",
+      "containers": {
+       "Iron Chest": {
+        "name": "Iron Chest",
+        "open": true,
+        "locked": false,
+        "visible": true,
+        "items": {}
+       },
+       "Crate": {
+        "name": "Crate",
+        "open": false,
+        "locked": false,
+        "visible": true,
+        "items": {}
+       },
+       "ground": {
+        "name": "ground",
+        "open": true,
+        "locked": false,
+        "visible": true,
+        "items": {}
+       }
+      }
+     },
+     "Bog_c2r1": {
+      "name": "Bog_c2r1",
+      "kind": "Bog",
+      "col": 2,
+      "row": 1,
+      "ecosystem": "rot",
+      "description": "",
+      "containers": {
+       "Sack": {
+        "name": "Sack",
+        "open": false,
+        "locked": true,
+        "visible": true,
+        "items": {
+         "Gold Coin": {
+          "name": "Gold Coin",
+          "visible": true
+         }
+        }
+       }
+      }
+     },
+     "Tower_c1r2": {
+      "name": "Tower_c1r2",
+      "kind": "Tower",
+      "col": 1,
+      "row": 2,
+      "ecosystem": "",
+      "description": "Stairs go up.",
+      "containers": {}
+     }
+    },
+    "npc": {
+     "Old_Miller_c1r1": {
+      "name": "Old_Miller_c1r1",
+      "role": "Old_Miller",
+      "lore": "Grinds bones, not wheat.",
+      "location": "Old_Mill_c1r1",
+      "attributes": {},
+      "containers": {}
+     }
+    },
+    "monsters": {
+     "Bog_Toad_c2r1": {
+      "name": "Bog_Toad_c2r1",
+      "kind": "Bog Toad",
+      "location": "Bog_c2r1",
+      "attributes": {}
+     }
+    },
+    "player": {
+     "Player1": {
+      "name": "Player1",
+      "location": "Old_Mill_c1r1",
+      "attributes": {},
+      "containers": {
+       "Backpack": {
+        "name": "Backpack",
+        "open": true,
+        "locked": false,
+        "visible": true,
+        "items": {
+         "Rope": {
+          "name": "Rope",
+          "visible": true
+         },
+         "Silver Key": {
+          "name": "Silver Key",
+          "visible": true
+         },
+         "Lantern": {
+          "name": "Lantern",
+          "visible": true
+         },
+         "Torch": {
+          "name": "Torch",
+          "visible": true
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  {
+   "action": "dance wildly",
+   "reply": "",
+   "world": {
+    "name": "Vector_World",
+    "cols": 2,
+    "rows": 2,
+    "locations": {
+     "Old_Mill_c1r1": {
+      "name": "Old_Mill_c1r1",
+      "kind": "Old Mill",
+      "col": 1,
+      "row": 1,
+      "ecosystem": "damp moss",
+      "description": "A wheel creaks in the dark.",
+      "containers": {
+       "Iron Chest": {
+        "name": "Iron Chest",
+        "open": true,
+        "locked": false,
+        "visible": true,
+        "items": {}
+       },
+       "Crate": {
+        "name": "Crate",
+        "open": false,
+        "locked": false,
+        "visible": true,
+        "items": {}
+       },
+       "ground": {
+        "name": "ground",
+        "open": true,
+        "locked": false,
+        "visible": true,
+        "items": {}
+       }
+      }
+     },
+     "Bog_c2r1": {
+      "name": "Bog_c2r1",
+      "kind": "Bog",
+      "col": 2,
+      "row": 1,
+      "ecosystem": "rot",
+      "description": "",
+      "containers": {
+       "Sack": {
+        "name": "Sack",
+        "open": false,
+        "locked": true,
+        "visible": true,
+        "items": {
+         "Gold Coin": {
+          "name": "Gold Coin",
+          "visible": true
+         }
+        }
+       }
+      }
+     },
+     "Tower_c1r2": {
+      "name": "Tower_c1r2",
+      "kind": "Tower",
+      "col": 1,
+      "row": 2,
+      "ecosystem": "",
+      "description": "Stairs go up.",
+      "containers": {}
+     }
+    },
+    "npc": {
+     "Old_Miller_c1r1": {
+      "name": "Old_Miller_c1r1",
+      "role": "Old_Miller",
+      "lore": "Grinds bones, not wheat.",
+      "location": "Old_Mill_c1r1",
+      "attributes": {},
+      "containers": {}
+     }
+    },
+    "monsters": {
+     "Bog_Toad_c2r1": {
+      "name": "Bog_Toad_c2r1",
+      "kind": "Bog Toad",
+      "location": "Bog_c2r1",
+      "attributes": {}
+     }
+    },
+    "player": {
+     "Player1": {
+      "name": "Player1",
+      "location": "Old_Mill_c1r1",
+      "attributes": {},
+      "containers": {
+       "Backpack": {
+        "name": "Backpack",
+        "open": true,
+        "locked": false,
+        "visible": true,
+        "items": {
+         "Rope": {
+          "name": "Rope",
+          "visible": true
+         },
+         "Silver Key": {
+          "name": "Silver Key",
+          "visible": true
+         },
+         "Lantern": {
+          "name": "Lantern",
+          "visible": true
+         },
+         "Torch": {
+          "name": "Torch",
+          "visible": true
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  {
+   "action": "go up",
+   "reply": "Which way? South and east.",
+   "world": {
+    "name": "Vector_World",
+    "cols": 2,
+    "rows": 2,
+    "locations": {
+     "Old_Mill_c1r1": {
+      "name": "Old_Mill_c1r1",
+      "kind": "Old Mill",
+      "col": 1,
+      "row": 1,
+      "ecosystem": "damp moss",
+      "description": "A wheel creaks in the dark.",
+      "containers": {
+       "Iron Chest": {
+        "name": "Iron Chest",
+        "open": true,
+        "locked": false,
+        "visible": true,
+        "items": {}
+       },
+       "Crate": {
+        "name": "Crate",
+        "open": false,
+        "locked": false,
+        "visible": true,
+        "items": {}
+       },
+       "ground": {
+        "name": "ground",
+        "open": true,
+        "locked": false,
+        "visible": true,
+        "items": {}
+       }
+      }
+     },
+     "Bog_c2r1": {
+      "name": "Bog_c2r1",
+      "kind": "Bog",
+      "col": 2,
+      "row": 1,
+      "ecosystem": "rot",
+      "description": "",
+      "containers": {
+       "Sack": {
+        "name": "Sack",
+        "open": false,
+        "locked": true,
+        "visible": true,
+        "items": {
+         "Gold Coin": {
+          "name": "Gold Coin",
+          "visible": true
+         }
+        }
+       }
+      }
+     },
+     "Tower_c1r2": {
+      "name": "Tower_c1r2",
+      "kind": "Tower",
+      "col": 1,
+      "row": 2,
+      "ecosystem": "",
+      "description": "Stairs go up.",
+      "containers": {}
+     }
+    },
+    "npc": {
+     "Old_Miller_c1r1": {
+      "name": "Old_Miller_c1r1",
+      "role": "Old_Miller",
+      "lore": "Grinds bones, not wheat.",
+      "location": "Old_Mill_c1r1",
+      "attributes": {},
+      "containers": {}
+     }
+    },
+    "monsters": {
+     "Bog_Toad_c2r1": {
+      "name": "Bog_Toad_c2r1",
+      "kind": "Bog Toad",
+      "location": "Bog_c2r1",
+      "attributes": {}
+     }
+    },
+    "player": {
+     "Player1": {
+      "name": "Player1",
+      "location": "Old_Mill_c1r1",
+      "attributes": {},
+      "containers": {
+       "Backpack": {
+        "name": "Backpack",
+        "open": true,
+        "locked": false,
+        "visible": true,
+        "items": {
+         "Rope": {
+          "name": "Rope",
+          "visible": true
+         },
+         "Silver Key": {
+          "name": "Silver Key",
+          "visible": true
+         },
+         "Lantern": {
+          "name": "Lantern",
+          "visible": true
+         },
+         "Torch": {
+          "name": "Torch",
+          "visible": true
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  {
+   "action": "go north",
+   "reply": "You cannot go north from here.",
+   "world": {
+    "name": "Vector_World",
+    "cols": 2,
+    "rows": 2,
+    "locations": {
+     "Old_Mill_c1r1": {
+      "name": "Old_Mill_c1r1",
+      "kind": "Old Mill",
+      "col": 1,
+      "row": 1,
+      "ecosystem": "damp moss",
+      "description": "A wheel creaks in the dark.",
+      "containers": {
+       "Iron Chest": {
+        "name": "Iron Chest",
+        "open": true,
+        "locked": false,
+        "visible": true,
+        "items": {}
+       },
+       "Crate": {
+        "name": "Crate",
+        "open": false,
+        "locked": false,
+        "visible": true,
+        "items": {}
+       },
+       "ground": {
+        "name": "ground",
+        "open": true,
+        "locked": false,
+        "visible": true,
+        "items": {}
+       }
+      }
+     },
+     "Bog_c2r1": {
+      "name": "Bog_c2r1",
+      "kind": "Bog",
+      "col": 2,
+      "row": 1,
+      "ecosystem": "rot",
+      "description": "",
+      "containers": {
+       "Sack": {
+        "name": "Sack",
+        "open": false,
+        "locked": true,
+        "visible": true,
+        "items": {
+         "Gold Coin": {
+          "name": "Gold Coin",
+          "visible": true
+         }
+        }
+       }
+      }
+     },
+     "Tower_c1r2": {
+      "name": "Tower_c1r2",
+      "kind": "Tower",
+      "col": 1,
+      "row": 2,
+      "ecosystem": "",
+      "description": "Stairs go up.",
+      "containers": {}
+     }
+    },
+    "npc": {
+     "Old_Miller_c1r1": {
+      "name": "Old_Miller_c1r1",
+      "role": "Old_Miller",
+      "lore": "Grinds bones, not wheat.",
+      "location": "Old_Mill_c1r1",
+      "attributes": {},
+      "containers": {}
+     }
+    },
+    "monsters": {
+     "Bog_Toad_c2r1": {
+      "name": "Bog_Toad_c2r1",
+      "kind": "Bog Toad",
+      "location": "Bog_c2r1",
+      "attributes": {}
+     }
+    },
+    "player": {
+     "Player1": {
+      "name": "Player1",
+      "location": "Old_Mill_c1r1",
+      "attributes": {},
+      "containers": {
+       "Backpack": {
+        "name": "Backpack",
+        "open": true,
+        "locked": false,
+        "visible": true,
+        "items": {
+         "Rope": {
+          "name": "Rope",
+          "visible": true
+         },
+         "Silver Key": {
+          "name": "Silver Key",
+          "visible": true
+         },
+         "Lantern": {
+          "name": "Lantern",
+          "visible": true
+         },
+         "Torch": {
+          "name": "Torch",
+          "visible": true
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  {
+   "action": "east",
+   "reply": "You are at: Bog (column 2, row 1)\nThe air carries a sense of rot.\nHere: Bog Toad.\nContainers: Sack (closed).\nYou see nothing to take.\nYou carry: Backpack: Lantern, Rope, Silver Key and Torch.\nWays out: west.",
+   "world": {
+    "name": "Vector_World",
+    "cols": 2,
+    "rows": 2,
+    "locations": {
+     "Old_Mill_c1r1": {
+      "name": "Old_Mill_c1r1",
+      "kind": "Old Mill",
+      "col": 1,
+      "row": 1,
+      "ecosystem": "damp moss",
+      "description": "A wheel creaks in the dark.",
+      "containers": {
+       "Iron Chest": {
+        "name": "Iron Chest",
+        "open": true,
+        "locked": false,
+        "visible": true,
+        "items": {}
+       },
+       "Crate": {
+        "name": "Crate",
+        "open": false,
+        "locked": false,
+        "visible": true,
+        "items": {}
+       },
+       "ground": {
+        "name": "ground",
+        "open": true,
+        "locked": false,
+        "visible": true,
+        "items": {}
+       }
+      }
+     },
+     "Bog_c2r1": {
+      "name": "Bog_c2r1",
+      "kind": "Bog",
+      "col": 2,
+      "row": 1,
+      "ecosystem": "rot",
+      "description": "",
+      "containers": {
+       "Sack": {
+        "name": "Sack",
+        "open": false,
+        "locked": true,
+        "visible": true,
+        "items": {
+         "Gold Coin": {
+          "name": "Gold Coin",
+          "visible": true
+         }
+        }
+       }
+      }
+     },
+     "Tower_c1r2": {
+      "name": "Tower_c1r2",
+      "kind": "Tower",
+      "col": 1,
+      "row": 2,
+      "ecosystem": "",
+      "description": "Stairs go up.",
+      "containers": {}
+     }
+    },
+    "npc": {
+     "Old_Miller_c1r1": {
+      "name": "Old_Miller_c1r1",
+      "role": "Old_Miller",
+      "lore": "Grinds bones, not wheat.",
+      "location": "Old_Mill_c1r1",
+      "attributes": {},
+      "containers": {}
+     }
+    },
+    "monsters": {
+     "Bog_Toad_c2r1": {
+      "name": "Bog_Toad_c2r1",
+      "kind": "Bog Toad",
+      "location": "Bog_c2r1",
+      "attributes": {}
+     }
+    },
+    "player": {
+     "Player1": {
+      "name": "Player1",
+      "location": "Bog_c2r1",
+      "attributes": {},
+      "containers": {
+       "Backpack": {
+        "name": "Backpack",
+        "open": true,
+        "locked": false,
+        "visible": true,
+        "items": {
+         "Rope": {
+          "name": "Rope",
+          "visible": true
+         },
+         "Silver Key": {
+          "name": "Silver Key",
+          "visible": true
+         },
+         "Lantern": {
+          "name": "Lantern",
+          "visible": true
+         },
+         "Torch": {
+          "name": "Torch",
+          "visible": true
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  {
+   "action": "open the sack",
+   "reply": "The Sack is locked.",
+   "world": {
+    "name": "Vector_World",
+    "cols": 2,
+    "rows": 2,
+    "locations": {
+     "Old_Mill_c1r1": {
+      "name": "Old_Mill_c1r1",
+      "kind": "Old Mill",
+      "col": 1,
+      "row": 1,
+      "ecosystem": "damp moss",
+      "description": "A wheel creaks in the dark.",
+      "containers": {
+       "Iron Chest": {
+        "name": "Iron Chest",
+        "open": true,
+        "locked": false,
+        "visible": true,
+        "items": {}
+       },
+       "Crate": {
+        "name": "Crate",
+        "open": false,
+        "locked": false,
+        "visible": true,
+        "items": {}
+       },
+       "ground": {
+        "name": "ground",
+        "open": true,
+        "locked": false,
+        "visible": true,
+        "items": {}
+       }
+      }
+     },
+     "Bog_c2r1": {
+      "name": "Bog_c2r1",
+      "kind": "Bog",
+      "col": 2,
+      "row": 1,
+      "ecosystem": "rot",
+      "description": "",
+      "containers": {
+       "Sack": {
+        "name": "Sack",
+        "open": false,
+        "locked": true,
+        "visible": true,
+        "items": {
+         "Gold Coin": {
+          "name": "Gold Coin",
+          "visible": true
+         }
+        }
+       }
+      }
+     },
+     "Tower_c1r2": {
+      "name": "Tower_c1r2",
+      "kind": "Tower",
+      "col": 1,
+      "row": 2,
+      "ecosystem": "",
+      "description": "Stairs go up.",
+      "containers": {}
+     }
+    },
+    "npc": {
+     "Old_Miller_c1r1": {
+      "name": "Old_Miller_c1r1",
+      "role": "Old_Miller",
+      "lore": "Grinds bones, not wheat.",
+      "location": "Old_Mill_c1r1",
+      "attributes": {},
+      "containers": {}
+     }
+    },
+    "monsters": {
+     "Bog_Toad_c2r1": {
+      "name": "Bog_Toad_c2r1",
+      "kind": "Bog Toad",
+      "location": "Bog_c2r1",
+      "attributes": {}
+     }
+    },
+    "player": {
+     "Player1": {
+      "name": "Player1",
+      "location": "Bog_c2r1",
+      "attributes": {},
+      "containers": {
+       "Backpack": {
+        "name": "Backpack",
+        "open": true,
+        "locked": false,
+        "visible": true,
+        "items": {
+         "Rope": {
+          "name": "Rope",
+          "visible": true
+         },
+         "Silver Key": {
+          "name": "Silver Key",
+          "visible": true
+         },
+         "Lantern": {
+          "name": "Lantern",
+          "visible": true
+         },
+         "Torch": {
+          "name": "Torch",
+          "visible": true
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  {
+   "action": "take the coin",
+   "reply": "You see nothing like that to take.",
+   "world": {
+    "name": "Vector_World",
+    "cols": 2,
+    "rows": 2,
+    "locations": {
+     "Old_Mill_c1r1": {
+      "name": "Old_Mill_c1r1",
+      "kind": "Old Mill",
+      "col": 1,
+      "row": 1,
+      "ecosystem": "damp moss",
+      "description": "A wheel creaks in the dark.",
+      "containers": {
+       "Iron Chest": {
+        "name": "Iron Chest",
+        "open": true,
+        "locked": false,
+        "visible": true,
+        "items": {}
+       },
+       "Crate": {
+        "name": "Crate",
+        "open": false,
+        "locked": false,
+        "visible": true,
+        "items": {}
+       },
+       "ground": {
+        "name": "ground",
+        "open": true,
+        "locked": false,
+        "visible": true,
+        "items": {}
+       }
+      }
+     },
+     "Bog_c2r1": {
+      "name": "Bog_c2r1",
+      "kind": "Bog",
+      "col": 2,
+      "row": 1,
+      "ecosystem": "rot",
+      "description": "",
+      "containers": {
+       "Sack": {
+        "name": "Sack",
+        "open": false,
+        "locked": true,
+        "visible": true,
+        "items": {
+         "Gold Coin": {
+          "name": "Gold Coin",
+          "visible": true
+         }
+        }
+       }
+      }
+     },
+     "Tower_c1r2": {
+      "name": "Tower_c1r2",
+      "kind": "Tower",
+      "col": 1,
+      "row": 2,
+      "ecosystem": "",
+      "description": "Stairs go up.",
+      "containers": {}
+     }
+    },
+    "npc": {
+     "Old_Miller_c1r1": {
+      "name": "Old_Miller_c1r1",
+      "role": "Old_Miller",
+      "lore": "Grinds bones, not wheat.",
+      "location": "Old_Mill_c1r1",
+      "attributes": {},
+      "containers": {}
+     }
+    },
+    "monsters": {
+     "Bog_Toad_c2r1": {
+      "name": "Bog_Toad_c2r1",
+      "kind": "Bog Toad",
+      "location": "Bog_c2r1",
+      "attributes": {}
+     }
+    },
+    "player": {
+     "Player1": {
+      "name": "Player1",
+      "location": "Bog_c2r1",
+      "attributes": {},
+      "containers": {
+       "Backpack": {
+        "name": "Backpack",
+        "open": true,
+        "locked": false,
+        "visible": true,
+        "items": {
+         "Rope": {
+          "name": "Rope",
+          "visible": true
+         },
+         "Silver Key": {
+          "name": "Silver Key",
+          "visible": true
+         },
+         "Lantern": {
+          "name": "Lantern",
+          "visible": true
+         },
+         "Torch": {
+          "name": "Torch",
+          "visible": true
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  {
+   "action": "w",
+   "reply": "You are at: Old Mill (column 1, row 1)\nA wheel creaks in the dark.\nThe air carries a sense of damp moss.\nHere: Old Miller.\nContainers: Crate (closed) and Iron Chest (open).\nYou see nothing to take.\nYou carry: Backpack: Lantern, Rope, Silver Key and Torch.\nWays out: south and east.",
+   "world": {
+    "name": "Vector_World",
+    "cols": 2,
+    "rows": 2,
+    "locations": {
+     "Old_Mill_c1r1": {
+      "name": "Old_Mill_c1r1",
+      "kind": "Old Mill",
+      "col": 1,
+      "row": 1,
+      "ecosystem": "damp moss",
+      "description": "A wheel creaks in the dark.",
+      "containers": {
+       "Iron Chest": {
+        "name": "Iron Chest",
+        "open": true,
+        "locked": false,
+        "visible": true,
+        "items": {}
+       },
+       "Crate": {
+        "name": "Crate",
+        "open": false,
+        "locked": false,
+        "visible": true,
+        "items": {}
+       },
+       "ground": {
+        "name": "ground",
+        "open": true,
+        "locked": false,
+        "visible": true,
+        "items": {}
+       }
+      }
+     },
+     "Bog_c2r1": {
+      "name": "Bog_c2r1",
+      "kind": "Bog",
+      "col": 2,
+      "row": 1,
+      "ecosystem": "rot",
+      "description": "",
+      "containers": {
+       "Sack": {
+        "name": "Sack",
+        "open": false,
+        "locked": true,
+        "visible": true,
+        "items": {
+         "Gold Coin": {
+          "name": "Gold Coin",
+          "visible": true
+         }
+        }
+       }
+      }
+     },
+     "Tower_c1r2": {
+      "name": "Tower_c1r2",
+      "kind": "Tower",
+      "col": 1,
+      "row": 2,
+      "ecosystem": "",
+      "description": "Stairs go up.",
+      "containers": {}
+     }
+    },
+    "npc": {
+     "Old_Miller_c1r1": {
+      "name": "Old_Miller_c1r1",
+      "role": "Old_Miller",
+      "lore": "Grinds bones, not wheat.",
+      "location": "Old_Mill_c1r1",
+      "attributes": {},
+      "containers": {}
+     }
+    },
+    "monsters": {
+     "Bog_Toad_c2r1": {
+      "name": "Bog_Toad_c2r1",
+      "kind": "Bog Toad",
+      "location": "Bog_c2r1",
+      "attributes": {}
+     }
+    },
+    "player": {
+     "Player1": {
+      "name": "Player1",
+      "location": "Old_Mill_c1r1",
+      "attributes": {},
+      "containers": {
+       "Backpack": {
+        "name": "Backpack",
+        "open": true,
+        "locked": false,
+        "visible": true,
+        "items": {
+         "Rope": {
+          "name": "Rope",
+          "visible": true
+         },
+         "Silver Key": {
+          "name": "Silver Key",
+          "visible": true
+         },
+         "Lantern": {
+          "name": "Lantern",
+          "visible": true
+         },
+         "Torch": {
+          "name": "Torch",
+          "visible": true
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  {
+   "action": "s",
+   "reply": "You are at: Tower (column 1, row 2)\nStairs go up.\nNobody else is here.\nNo containers.\nYou see nothing to take.\nYou carry: Backpack: Lantern, Rope, Silver Key and Torch.\nWays out: north.",
+   "world": {
+    "name": "Vector_World",
+    "cols": 2,
+    "rows": 2,
+    "locations": {
+     "Old_Mill_c1r1": {
+      "name": "Old_Mill_c1r1",
+      "kind": "Old Mill",
+      "col": 1,
+      "row": 1,
+      "ecosystem": "damp moss",
+      "description": "A wheel creaks in the dark.",
+      "containers": {
+       "Iron Chest": {
+        "name": "Iron Chest",
+        "open": true,
+        "locked": false,
+        "visible": true,
+        "items": {}
+       },
+       "Crate": {
+        "name": "Crate",
+        "open": false,
+        "locked": false,
+        "visible": true,
+        "items": {}
+       },
+       "ground": {
+        "name": "ground",
+        "open": true,
+        "locked": false,
+        "visible": true,
+        "items": {}
+       }
+      }
+     },
+     "Bog_c2r1": {
+      "name": "Bog_c2r1",
+      "kind": "Bog",
+      "col": 2,
+      "row": 1,
+      "ecosystem": "rot",
+      "description": "",
+      "containers": {
+       "Sack": {
+        "name": "Sack",
+        "open": false,
+        "locked": true,
+        "visible": true,
+        "items": {
+         "Gold Coin": {
+          "name": "Gold Coin",
+          "visible": true
+         }
+        }
+       }
+      }
+     },
+     "Tower_c1r2": {
+      "name": "Tower_c1r2",
+      "kind": "Tower",
+      "col": 1,
+      "row": 2,
+      "ecosystem": "",
+      "description": "Stairs go up.",
+      "containers": {}
+     }
+    },
+    "npc": {
+     "Old_Miller_c1r1": {
+      "name": "Old_Miller_c1r1",
+      "role": "Old_Miller",
+      "lore": "Grinds bones, not wheat.",
+      "location": "Old_Mill_c1r1",
+      "attributes": {},
+      "containers": {}
+     }
+    },
+    "monsters": {
+     "Bog_Toad_c2r1": {
+      "name": "Bog_Toad_c2r1",
+      "kind": "Bog Toad",
+      "location": "Bog_c2r1",
+      "attributes": {}
+     }
+    },
+    "player": {
+     "Player1": {
+      "name": "Player1",
+      "location": "Tower_c1r2",
+      "attributes": {},
+      "containers": {
+       "Backpack": {
+        "name": "Backpack",
+        "open": true,
+        "locked": false,
+        "visible": true,
+        "items": {
+         "Rope": {
+          "name": "Rope",
+          "visible": true
+         },
+         "Silver Key": {
+          "name": "Silver Key",
+          "visible": true
+         },
+         "Lantern": {
+          "name": "Lantern",
+          "visible": true
+         },
+         "Torch": {
+          "name": "Torch",
+          "visible": true
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  {
+   "action": "look",
+   "reply": "You are at: Tower (column 1, row 2)\nStairs go up.\nNobody else is here.\nNo containers.\nYou see nothing to take.\nYou carry: Backpack: Lantern, Rope, Silver Key and Torch.\nWays out: north.",
+   "world": {
+    "name": "Vector_World",
+    "cols": 2,
+    "rows": 2,
+    "locations": {
+     "Old_Mill_c1r1": {
+      "name": "Old_Mill_c1r1",
+      "kind": "Old Mill",
+      "col": 1,
+      "row": 1,
+      "ecosystem": "damp moss",
+      "description": "A wheel creaks in the dark.",
+      "containers": {
+       "Iron Chest": {
+        "name": "Iron Chest",
+        "open": true,
+        "locked": false,
+        "visible": true,
+        "items": {}
+       },
+       "Crate": {
+        "name": "Crate",
+        "open": false,
+        "locked": false,
+        "visible": true,
+        "items": {}
+       },
+       "ground": {
+        "name": "ground",
+        "open": true,
+        "locked": false,
+        "visible": true,
+        "items": {}
+       }
+      }
+     },
+     "Bog_c2r1": {
+      "name": "Bog_c2r1",
+      "kind": "Bog",
+      "col": 2,
+      "row": 1,
+      "ecosystem": "rot",
+      "description": "",
+      "containers": {
+       "Sack": {
+        "name": "Sack",
+        "open": false,
+        "locked": true,
+        "visible": true,
+        "items": {
+         "Gold Coin": {
+          "name": "Gold Coin",
+          "visible": true
+         }
+        }
+       }
+      }
+     },
+     "Tower_c1r2": {
+      "name": "Tower_c1r2",
+      "kind": "Tower",
+      "col": 1,
+      "row": 2,
+      "ecosystem": "",
+      "description": "Stairs go up.",
+      "containers": {}
+     }
+    },
+    "npc": {
+     "Old_Miller_c1r1": {
+      "name": "Old_Miller_c1r1",
+      "role": "Old_Miller",
+      "lore": "Grinds bones, not wheat.",
+      "location": "Old_Mill_c1r1",
+      "attributes": {},
+      "containers": {}
+     }
+    },
+    "monsters": {
+     "Bog_Toad_c2r1": {
+      "name": "Bog_Toad_c2r1",
+      "kind": "Bog Toad",
+      "location": "Bog_c2r1",
+      "attributes": {}
+     }
+    },
+    "player": {
+     "Player1": {
+      "name": "Player1",
+      "location": "Tower_c1r2",
+      "attributes": {},
+      "containers": {
+       "Backpack": {
+        "name": "Backpack",
+        "open": true,
+        "locked": false,
+        "visible": true,
+        "items": {
+         "Rope": {
+          "name": "Rope",
+          "visible": true
+         },
+         "Silver Key": {
+          "name": "Silver Key",
+          "visible": true
+         },
+         "Lantern": {
+          "name": "Lantern",
+          "visible": true
+         },
+         "Torch": {
+          "name": "Torch",
+          "visible": true
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  {
+   "action": "n",
+   "reply": "You are at: Old Mill (column 1, row 1)\nA wheel creaks in the dark.\nThe air carries a sense of damp moss.\nHere: Old Miller.\nContainers: Crate (closed) and Iron Chest (open).\nYou see nothing to take.\nYou carry: Backpack: Lantern, Rope, Silver Key and Torch.\nWays out: south and east.",
+   "world": {
+    "name": "Vector_World",
+    "cols": 2,
+    "rows": 2,
+    "locations": {
+     "Old_Mill_c1r1": {
+      "name": "Old_Mill_c1r1",
+      "kind": "Old Mill",
+      "col": 1,
+      "row": 1,
+      "ecosystem": "damp moss",
+      "description": "A wheel creaks in the dark.",
+      "containers": {
+       "Iron Chest": {
+        "name": "Iron Chest",
+        "open": true,
+        "locked": false,
+        "visible": true,
+        "items": {}
+       },
+       "Crate": {
+        "name": "Crate",
+        "open": false,
+        "locked": false,
+        "visible": true,
+        "items": {}
+       },
+       "ground": {
+        "name": "ground",
+        "open": true,
+        "locked": false,
+        "visible": true,
+        "items": {}
+       }
+      }
+     },
+     "Bog_c2r1": {
+      "name": "Bog_c2r1",
+      "kind": "Bog",
+      "col": 2,
+      "row": 1,
+      "ecosystem": "rot",
+      "description": "",
+      "containers": {
+       "Sack": {
+        "name": "Sack",
+        "open": false,
+        "locked": true,
+        "visible": true,
+        "items": {
+         "Gold Coin": {
+          "name": "Gold Coin",
+          "visible": true
+         }
+        }
+       }
+      }
+     },
+     "Tower_c1r2": {
+      "name": "Tower_c1r2",
+      "kind": "Tower",
+      "col": 1,
+      "row": 2,
+      "ecosystem": "",
+      "description": "Stairs go up.",
+      "containers": {}
+     }
+    },
+    "npc": {
+     "Old_Miller_c1r1": {
+      "name": "Old_Miller_c1r1",
+      "role": "Old_Miller",
+      "lore": "Grinds bones, not wheat.",
+      "location": "Old_Mill_c1r1",
+      "attributes": {},
+      "containers": {}
+     }
+    },
+    "monsters": {
+     "Bog_Toad_c2r1": {
+      "name": "Bog_Toad_c2r1",
+      "kind": "Bog Toad",
+      "location": "Bog_c2r1",
+      "attributes": {}
+     }
+    },
+    "player": {
+     "Player1": {
+      "name": "Player1",
+      "location": "Old_Mill_c1r1",
+      "attributes": {},
+      "containers": {
+       "Backpack": {
+        "name": "Backpack",
+        "open": true,
+        "locked": false,
+        "visible": true,
+        "items": {
+         "Rope": {
+          "name": "Rope",
+          "visible": true
+         },
+         "Silver Key": {
+          "name": "Silver Key",
+          "visible": true
+         },
+         "Lantern": {
+          "name": "Lantern",
+          "visible": true
+         },
+         "Torch": {
+          "name": "Torch",
+          "visible": true
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  {
+   "action": "drop rope",
+   "reply": "You drop the Rope.",
+   "world": {
+    "name": "Vector_World",
+    "cols": 2,
+    "rows": 2,
+    "locations": {
+     "Old_Mill_c1r1": {
+      "name": "Old_Mill_c1r1",
+      "kind": "Old Mill",
+      "col": 1,
+      "row": 1,
+      "ecosystem": "damp moss",
+      "description": "A wheel creaks in the dark.",
+      "containers": {
+       "Iron Chest": {
+        "name": "Iron Chest",
+        "open": true,
+        "locked": false,
+        "visible": true,
+        "items": {}
+       },
+       "Crate": {
+        "name": "Crate",
+        "open": false,
+        "locked": false,
+        "visible": true,
+        "items": {}
+       },
+       "ground": {
+        "name": "ground",
+        "open": true,
+        "locked": false,
+        "visible": true,
+        "items": {
+         "Rope": {
+          "name": "Rope",
+          "visible": true
+         }
+        }
+       }
+      }
+     },
+     "Bog_c2r1": {
+      "name": "Bog_c2r1",
+      "kind": "Bog",
+      "col": 2,
+      "row": 1,
+      "ecosystem": "rot",
+      "description": "",
+      "containers": {
+       "Sack": {
+        "name": "Sack",
+        "open": false,
+        "locked": true,
+        "visible": true,
+        "items": {
+         "Gold Coin": {
+          "name": "Gold Coin",
+          "visible": true
+         }
+        }
+       }
+      }
+     },
+     "Tower_c1r2": {
+      "name": "Tower_c1r2",
+      "kind": "Tower",
+      "col": 1,
+      "row": 2,
+      "ecosystem": "",
+      "description": "Stairs go up.",
+      "containers": {}
+     }
+    },
+    "npc": {
+     "Old_Miller_c1r1": {
+      "name": "Old_Miller_c1r1",
+      "role": "Old_Miller",
+      "lore": "Grinds bones, not wheat.",
+      "location": "Old_Mill_c1r1",
+      "attributes": {},
+      "containers": {}
+     }
+    },
+    "monsters": {
+     "Bog_Toad_c2r1": {
+      "name": "Bog_Toad_c2r1",
+      "kind": "Bog Toad",
+      "location": "Bog_c2r1",
+      "attributes": {}
+     }
+    },
+    "player": {
+     "Player1": {
+      "name": "Player1",
+      "location": "Old_Mill_c1r1",
+      "attributes": {},
+      "containers": {
+       "Backpack": {
+        "name": "Backpack",
+        "open": true,
+        "locked": false,
+        "visible": true,
+        "items": {
+         "Silver Key": {
+          "name": "Silver Key",
+          "visible": true
+         },
+         "Lantern": {
+          "name": "Lantern",
+          "visible": true
+         },
+         "Torch": {
+          "name": "Torch",
+          "visible": true
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ ],
+ "scene_idea": "Old Mill, damp moss: A wheel creaks in the dark. With Old Miller.",
+ "character_ask": "Old Miller: Grinds bones, not wheat.",
+ "tile": {
+  "name": "Old_Mill_c1r1",
+  "kind": "Old Mill",
+  "ecosystem": "damp moss",
+  "description": "A wheel creaks in the dark.",
+  "containers": {
+   "Iron Chest": {
+    "name": "Iron Chest",
+    "open": true,
+    "items": {
+     "Rope": {
+      "name": "Rope"
+     }
+    }
+   },
+   "Crate": {
+    "name": "Crate",
+    "open": false,
+    "items": {}
+   }
+  },
+  "npc": {
+   "Old_Miller_c1r1": {
+    "name": "Old_Miller_c1r1",
+    "role": "Old Miller"
+   }
+  },
+  "monsters": {}
+ }
+}

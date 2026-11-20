@@ -29,6 +29,7 @@ on St.Init
    put empty into sLibs
    St.UseLib "lib_ttrpg_lm.livecodescript", "TTRPG_Studio_lm"
    St.UseLib "lib_ttrpg.livecodescript", "TTRPG_Studio_engine"
+   St.UseLib "lib_ttrpg_world.livecodescript", "TTRPG_Studio_world"
    put St.Find("../LIB_DATA/livecode/lib_data.livecodescript") into tLib
    if tLib is empty then
       start using stack "TTRPG_Studio_data"

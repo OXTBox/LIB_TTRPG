@@ -1,0 +1,29 @@
+-- TTRPG Studio: the world code (OPUS_BUILD step 9) against ref/world_vectors.json + a generated world
+start using stack "/home/igame3d/projects/LIB_TTRPG/livecode/lib_ttrpg_lm.livecodescript"
+start using stack "/home/igame3d/projects/LIB_TTRPG/livecode/lib_ttrpg.livecodescript"
+start using stack "/home/igame3d/projects/LIB_TTRPG/livecode/lib_ttrpg_world.livecodescript"
+put TTRPG.World.SelfTest("/home/igame3d/projects/LIB_TTRPG/ref/world_vectors.json") & return into tLog
+-- save / load round trip in a temp folder (never LIB_DATA)
+put specialFolderPath("temporary") & "/ttrpg_world_test_" & the seconds into tDir
+TTRPG.Init empty, tDir
+put TTRPG.World.New("Round_Trip", 4, 3) into tW
+TTRPG.World.Spawn tW
+put the result into tP
+TTRPG.World.Act tW, tP, "search"
+TTRPG.World.Save tW
+put the result into tPath
+put TTRPG.World.Load(tPath) into tW2
+put "round trip same view: " & (TTRPG.World.View(tW, tP) is TTRPG.World.View(tW2, tP)) & return after tLog
+put the keys of tW["locations"] into tK
+put line 1 of tK into tK
+TTRPG.World.SaveObject tW, "locations", tK
+put the result into tPath
+delete variable tW2["locations"][tK]
+TTRPG.World.LoadObject tW2, "locations", tPath
+put "object round trip: " & (the result is tK and tW2["locations"][tK]["col"] is tW["locations"][tK]["col"]) & return after tLog
+TTRPG.Prompts.Load "/home/igame3d/projects/LIB_TTRPG/prompts"
+put TTRPG.JSON.Parse(url ("file:/home/igame3d/projects/LIB_TTRPG/ref/world_vectors.json")) into tV
+put TTRPG.World.TilePrompt(tV["start"], "Old_Mill_c1r1") into tTP
+put "tile prompt shows only what is seen: " & ("Rope" is in tTP and "Silver Key" is not in tTP and "Lantern" is not in tTP and "{tile}" is not in tTP) & return after tLog
+put "npc prompt filled: " & ("Old Miller" is in TTRPG.World.NPCPrompt(tV["start"], "Old_Miller_c1r1") and "Grinds bones" is in TTRPG.World.NPCPrompt(tV["start"], "Old_Miller_c1r1")) & return after tLog
+return tLog
