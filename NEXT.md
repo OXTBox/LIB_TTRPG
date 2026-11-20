@@ -9,6 +9,14 @@
   the library is a substack of the rebuilt `TTRPG_Studio.livecode` but no button uses it yet.
 - Next (ask the owner): a World panel in the Studio (New World, the view, "Scene here" = SceneIdea ->
   New Scene, NPCs here -> Add Character), and world actions tried before the referee each turn.
+- Owner tried `play` 19 Nov: "That works great, it's like 1981 all over again!". Merge not yet asked for.
+- PARKED (owner, 19 Nov: "build, test and set aside" later): Raon-1-nano NPC model (KRAFTON). LM Studio
+  lists it but cannot load it (architecture too new). Plan: build krafton-ai/llama.cpp branch
+  `raon-1-nano` in WSL (owner runs `sudo apt install -y build-essential cmake` first; CPU build, CUDA
+  later), serve the GGUF from C:\Users\Private\.cache\lm-studio\models\KRAFTON\Raon-1-nano-gguf
+  (2 GB, never read it) on :8000 with --ctx-size 8192, thinking off/capped; then a Voices base URL in
+  ref + lib_ttrpg_lm. Or wait for upstream PR ggml-org/llama.cpp#32200. Notes:
+  LIB_LLMOUT/Read/LIB_TTRPG/About_Raon_LLM.txt. vLLM is out (server GPU).
 - NOTE: `python3 ref/ttrpg_ref.py test` is the LIVE test: it loads gemma-2-2b. Do not use it as a quick check.
 
 
