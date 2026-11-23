@@ -14,6 +14,7 @@ constant kH = 720
 constant kSkills = "Acrobatics,Animal Handling,Arcana,Athletics,Deception,History,Insight,Intimidation,Investigation,Medicine,Nature,Perception,Performance,Persuasion,Religion,Sleight of Hand,Stealth,Survival"
 -- the skill buttons' short labels, same order
 constant kSkillShort = "Acrobatics,Animals,Arcana,Athletics,Deception,History,Insight,Intimidate,Investigate,Medicine,Nature,Perception,Perform,Persuasion,Religion,Sleight,Stealth,Survival"
+constant kWorldLabels = "WorldName,MapKey,CellLabel,WordsLabel,HereLabel,WorldHint"
 constant kDevOptions = "max_dm,max_voice,max_referee,max_make,max_summary,temp_dm,temp_voice,keep_turns,summary_every,ctx"
 constant kDevLabels = "Max tokens: narrator,Max tokens: voices,Max tokens: referee,Max tokens: scene / character maker,Max tokens: summary,Temperature: narrator,Temperature: voices,Turns kept word for word,Fold the summary every N turns,Context length (at Load)"
 
@@ -36,7 +37,7 @@ command Build.Studio pDir
 
    ---------------------------------------------------------------- top: the buttons
    put 8 into x
-   repeat for each item tName in "NewScene,AddCharacter,Regenerate,Notes,EndScene,About"
+   repeat for each item tName in "NewScene,AddCharacter,Regenerate,Notes,EndScene,World,About"
       create button tName
       set the rect of it to x, 6, x + 112, 30
       add 118 to x
@@ -49,8 +50,10 @@ command Build.Studio pDir
    set the label of button "Notes" to "DM Notes"
    set the tooltip of button "Notes" to "The DM's hidden notes: the truth, the clues, the summary"
    set the label of button "EndScene" to "End Scene"
+   set the label of button "World" to "World"
+   set the tooltip of button "World" to "The world map: cells, people, monsters, boxes (typing here tries the world first)"
    set the label of button "About" to "About"
-   Build.Label "Hint", "Esc: pause, cancel a call, developer options.   Ctrl+R: regenerate.", 728, 8, 1272, 28
+   Build.Label "Hint", "Esc: pause, cancel a call, developer options.   Ctrl+R: regenerate.", 846, 8, 1272, 28
 
    ---------------------------------------------------------------- left: the models
    Build.Label "ModelsLabel", "Models", 8, 40, 268, 60
@@ -206,6 +209,8 @@ command Build.Studio pDir
    set the lockText of it to true
    set the dontWrap of it to true
 
+   Build.World
+
    ---------------------------------------------------------------- colours, then the pieces that make it work anywhere
    Theme.ApplyStack tS
    repeat for each item tName in "Hint,ModelsLabel,DMLabel,VoicesLabel,CharsLabel,PlayerLabel,Thinking,LibsNote,l_pname,l_plook"
@@ -213,6 +218,10 @@ command Build.Studio pDir
          set the opaque of field tName of card "Studio" of stack tS to false
          set the showBorder of field tName of card "Studio" of stack tS to false
       end if
+   end repeat
+   repeat for each item tName in kWorldLabels
+      set the opaque of field tName of card "World" of stack tS to false
+      set the showBorder of field tName of card "World" of stack tS to false
    end repeat
    set the foregroundColor of field "Thinking" of card "Studio" of stack tS to Theme.Get("accent")
    repeat for each item tName in kSkills
@@ -288,6 +297,96 @@ command Build.Label pName, pText, pL, pT, pR, pB
    put pText into field pName
 end Build.Label
 
+-- card "World" (owner, 23 Nov): the map of cells, the cell as plain data (DM edits it), Verbose = the
+-- DM model words it, the people and monsters here (-> Add Character), Scene here. St.World* handlers.
+command Build.World
+   local x, tName
+   create card "World"
+   put 8 into x
+   repeat for each item tName in "WorldBack,WorldNew,WorldLoad,WorldSave,SceneHere"
+      create button tName
+      set the rect of it to x, 6, x + 112, 30
+      add 118 to x
+      Build.Click it, tName
+   end repeat
+   set the label of button "WorldBack" to "Studio"
+   set the tooltip of button "WorldBack" to "Back to the play (Esc)"
+   set the label of button "WorldNew" to "New World"
+   set the label of button "WorldLoad" to "Load World"
+   set the label of button "WorldSave" to "Save World"
+   set the label of button "SceneHere" to "Scene here"
+   set the tooltip of button "SceneHere" to "A New Scene made from where you stand (@)"
+   create button "Verbose"
+   set the style of it to "checkbox"
+   set the label of it to "Verbose"
+   set the rect of it to x + 4, 6, x + 100, 30
+   set the tooltip of it to "The DM model puts the cell into words (it sees only what can be seen)"
+   Build.Click it, "Verbose"
+   Build.Label "WorldHint", "Click a cell: see and edit it. Click next to @: walk there (Shift: just look).", 700, 8, 1272, 28
+   -- left: the map
+   Build.Label "WorldName", "No world yet: New World or Load World.", 8, 40, 560, 60
+   set the textStyle of field "WorldName" to "bold"
+   create field "Map"
+   set the rect of it to 8, 64, 560, 600
+   set the lockText of it to true
+   set the dontWrap of it to true
+   set the textFont of it to "Courier New"
+   set the textSize of it to 18
+   set the fixedLineHeight of it to true
+   set the textHeight of it to 22
+   set the vScrollbar of it to true
+   set the hScrollbar of it to true
+   set the script of it to "on mouseUp" & return & "St.MapClicked" & return & "end mouseUp"
+   Build.Label "MapKey", "@ you    & people and monsters    n people    m monsters    . a place", 8, 606, 560, 628
+   -- middle: the cell as data
+   Build.Label "CellLabel", "This cell (plain data: edit, then Apply)", 572, 40, 912, 60
+   set the textStyle of field "CellLabel" to "bold"
+   create field "CellData"
+   set the rect of it to 572, 64, 912, 400
+   set the vScrollbar of it to true
+   set the textSize of it to 13
+   set the tooltip of it to "kind: / ecosystem: / description: / box: Name (open|closed, locked, hidden) / in Box: Item (hidden)"
+   create button "CellApply"
+   set the label of it to "Apply"
+   set the rect of it to 572, 406, 672, 430
+   Build.Click it, "CellApply"
+   create button "CellRevert"
+   set the label of it to "Revert"
+   set the rect of it to 678, 406, 778, 430
+   Build.Click it, "CellRevert"
+   Build.Label "WordsLabel", "In words (the DM model, from what can be seen)", 572, 440, 912, 460
+   create field "CellWords"
+   set the rect of it to 572, 464, 912, 684
+   set the lockText of it to true
+   set the vScrollbar of it to true
+   set the textSize of it to 13
+   set the visible of field "WordsLabel" to false
+   set the visible of field "CellWords" to false
+   -- right: who is here
+   Build.Label "HereLabel", "Here (click one)", 924, 40, 1272, 60
+   set the textStyle of field "HereLabel" to "bold"
+   create field "HereList"
+   set the rect of it to 924, 64, 1272, 220
+   set the listBehavior of it to true
+   set the lockText of it to true
+   set the dontWrap of it to true
+   set the vScrollbar of it to true
+   set the script of it to "on mouseUp" & return & "St.HerePick" & return & "end mouseUp"
+   create button "HereAdd"
+   set the label of it to "Add as character"
+   set the rect of it to 924, 226, 1100, 250
+   Build.Click it, "HereAdd"
+   create field "HereLore"
+   set the rect of it to 924, 258, 1272, 450
+   set the lockText of it to true
+   set the vScrollbar of it to true
+   create field "WStatus"
+   set the rect of it to 8, 692, kW - 8, 714
+   set the lockText of it to true
+   set the dontWrap of it to true
+   go card "Studio"
+end Build.World
+
 -- Escape's panel: developer options, over the log (rule 18)
 command Build.Pause
    local i, tName, y
@@ -349,6 +448,11 @@ command Build.About pStack, pDir
          "- Add Character: by hand, or a one-line ask to the model. Click a character to edit it; Keep after scene " & \
          "+ End Scene keeps it for every new scene." & return & \
          "- DM Notes: peek at the truth and the clues." & return & \
+         "- World (23 Nov): New World makes a map of cells (Load / Save World keep it). Click a cell to see it as " & \
+         "plain data and edit it (Apply); click next to @ to walk. Verbose: the DM model puts the cell into words. " & \
+         "Here: people and monsters on the cell, Add as character. Scene here: a New Scene from where you stand. " & \
+         "While a world is loaded, look, take, drop, open, close, search and go north/south/east/west typed in the " & \
+         "Studio change the world at once, no model needed (during a scene, look and search go to the DM for clues)." & return & \
          "- Esc while playing: pause; cancels a running call; developer options (token limits, temperatures, " & \
          "turns kept, summary pace, context length)." & return & return & \
          "HOW TO REPORT" & return & \

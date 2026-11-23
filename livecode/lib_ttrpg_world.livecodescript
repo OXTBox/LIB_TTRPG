@@ -201,6 +201,11 @@ private function wwOrdered pKeys
    return pKeys
 end wwOrdered
 
+-- lines in the world's order (the panel lists with it)
+function TTRPG.World.Ordered pKeys
+   return wwOrdered(pKeys)
+end TTRPG.World.Ordered
+
 -- the name whose words the text says most of; ties -> first in order; none -> empty
 function TTRPG.World.BestMatch pNames, pText
    local tSaid, tBest, tScore, tN, tS, tW

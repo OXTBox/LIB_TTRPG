@@ -1,5 +1,21 @@
 # LIB_TTRPG: where we left off (come back here)
 
+## 23 Nov 2026: the World panel is built (branch `world-panel`, not merged, waits for the owner's look)
+- Owner's answers (23 Nov): own card (World tab); New / Load / Save World; NPCs here -> Add Character;
+  small map of cells (click a neighbour = walk); "Scene here"; NOT the "You are at..." prose: the cell is
+  plain data, editable by the user (later a model); a Verbose switch has the DM model pad it into words;
+  typing in the Studio tries world actions first.
+- Built: Studio top row has a World button -> card "World": map (text, @ & n m .; click = see/edit a cell,
+  next to @ = walk, Shift-click = just look), the cell as plain lines + Apply / Revert, Verbose (DM model,
+  visible tile only, remembered per cell), Here list + lore + Add as character (by hand / DM model),
+  Scene here. St.Send: world actions first, no model needed; during a scene look / search still go to the
+  DM (they find the clues). Closing / New / Load ask before dropping an unsaved world.
+- Spec first: `ref/ttrpg_world.py` cell_data / set_cell_data / map_lines (+ vectors); port
+  TTRPG.World.CellData / SetCellData / MapLines / Here / Ordered / Describe.
+- Tests: `lc_world_test.txt` (0 fails), new `lc_world_ui_test.txt` (0 fails), the old ones still pass.
+- Not seen on a screen yet: the map font (Courier New 18) and the card's look. LIB_TEST's copy is older.
+- Next, after his look: a model that EDITS the cell data (owner: "modifiable by the users/LLM").
+
 ## 19 Nov 2026 evening: the old studio's world code is in (branch `ttrpg-world-code`, not merged)
 - `ref/ttrpg_world.py` (spec) + `livecode/lib_ttrpg_world.livecodescript` (port), same answers on
   `ref/world_vectors.json`. Map of what became of each old handler: `livecode/WORLD_PORT.md`.

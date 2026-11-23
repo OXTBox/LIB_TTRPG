@@ -10,11 +10,16 @@
 ##   SKILLS  18 buttons over the input: a click starts the line "I use <skill>: " (the engine honours it).
 ##   TOP     New Scene, Add Character, Regenerate (Ctrl+R), DM Notes, End Scene, About.
 ##   Escape  pauses (rule 18): cancels a running call and shows the developer options.
+## Card 3 "World" (owner, 23 Nov; the TOP button World): the map of cells (click = see/edit, next to @ = walk),
+##   the cell as plain data (Apply), Verbose = the DM model words it, Here (-> Add as character), Scene here.
+##   While a world is loaded, St.Send tries TTRPG.World.Act first (no model needed); during a scene,
+##   look / search go to the DM (they find the clues).
 ## The libraries are found next to the stack (livecode/, or ../LIB_TTRPG/livecode/ from LIB_TEST);
 ## if not, the copies the builder put in as substacks are used. Same for the prompts.
 ######################################################################################
 
 local sDir, sCharIdx, sEscAt, sLogHTML, sLibs
+local sWorld, sWPlayer, sWCell, sWDirty, sHereKeys, sHereIdx, sWords, sWordsKey, sWordsLoc
 
 on openStack
    St.Init
@@ -61,6 +66,7 @@ on St.Init
    put "No scene yet. Load a model, then press New Scene." into field "SceneText" of card "Studio"
    St.FillPlayer
    St.FillChars
+   St.WorldShow
    unlock screen
    St.Status "Looking for LM Studio..."
    send "St.Refresh" to me in 20 milliseconds
@@ -92,6 +98,10 @@ function St.Libs
 end St.Libs
 
 on closeStackRequest
+   if sWDirty is true then
+      answer "The world has changes that are not saved." with "Close anyway" or "Save World"
+      if it is "Save World" then St.WorldSave
+   end if
    try
       TTRPG.Cancel
       TTRPG.LM.UnloadMine          -- only what this stack loaded: a model found loaded may be Spark at work
@@ -122,6 +132,37 @@ on St.Click pName
          break
       case "About"
          go card "About"
+         break
+      case "World"
+         go card "World"
+         St.WorldShow
+         break
+      case "WorldBack"
+         go card "Studio"
+         break
+      case "WorldNew"
+         St.WorldNew
+         break
+      case "WorldLoad"
+         St.WorldLoad
+         break
+      case "WorldSave"
+         St.WorldSave
+         break
+      case "SceneHere"
+         St.SceneHere
+         break
+      case "Verbose"
+         St.WorldWords
+         break
+      case "CellApply"
+         St.CellApply
+         break
+      case "CellRevert"
+         St.WorldShow
+         break
+      case "HereAdd"
+         St.HereAdd
          break
       case "Start"
          go card "Studio"
@@ -257,7 +298,7 @@ function St.Ready
       St.Status "Load a model first: pick a DM on the left, press Load."
       return false
    end if
-   if TTRPG.Busy() then
+   if TTRPG.Busy() or TTRPG.LM.Busy() then
       St.Status "Still thinking. Esc cancels."
       return false
    end if
@@ -266,12 +307,17 @@ end St.Ready
 
 -------------------------------------------------------------------- play
 
-on St.NewScene
+-- pIdea given (Scene here): no question asked
+on St.NewScene pIdea
    local tIdea
    if not St.Ready() then exit St.NewScene
-   ask "One line: what is the scene?" with "a flooded crypt under a chapel"
-   if it is empty or the result is "Cancel" then exit St.NewScene
-   put it into tIdea
+   if pIdea is empty then
+      ask "One line: what is the scene?" with "a flooded crypt under a chapel"
+      if it is empty or the result is "Cancel" then exit St.NewScene
+      put it into tIdea
+   else
+      put pIdea into tIdea
+   end if
    put empty into sLogHTML
    set the visible of field "Notes" of card "Studio" to false
    put "Making the scene: " & tIdea into field "SceneText" of card "Studio"
@@ -281,11 +327,28 @@ on St.NewScene
 end St.NewScene
 
 on St.Send
-   local tLine, tScene, tPlayer
+   local tLine, tScene, tPlayer, tReply
    put word 1 to -1 of field "Input" of card "Studio" into tLine
    if tLine is empty then exit St.Send
-   if not St.Ready() then exit St.Send
    put TTRPG.Scene() into tScene
+   -- a world loaded: its actions first, no model needed (in a scene, look / search are the DM's: clues)
+   if sWorld is an array and sWPlayer is not empty then
+      if not (tScene["title"] is not empty and tScene["ended"] is not "true" and toLower(word 1 of tLine) is among the items of "look,l,search,examine") then
+         TTRPG.World.Act sWorld, sWPlayer, tLine
+         put the result into tReply
+         if tReply is not empty then
+            put TTRPG.Player() into tPlayer
+            put empty into field "Input" of card "Studio"
+            St.Log "player", tPlayer["name"], tLine
+            St.Log "world", empty, tReply
+            put true into sWDirty
+            put sWorld["player"][sWPlayer]["location"] into sWCell
+            St.WorldShow
+            exit St.Send
+         end if
+      end if
+   end if
+   if not St.Ready() then exit St.Send
    if tScene["title"] is empty or tScene["ended"] is "true" then
       St.Status "No scene running: press New Scene."
       exit St.Send
@@ -420,7 +483,7 @@ end TTRPG.Done
 
 -- pKind: player, DM, roll, clue, secret, note, error, or a character's name
 on St.Log pKind, pWho, pText
-   local tP
+   local tP, tLine
    switch pKind
       case "player"
          put "<p><font color=" & quote & "#9fd3ff" & quote & "><b>" & St.Esc(pWho) & ":</b> " & St.Esc(pText) & "</font></p>" into tP
@@ -436,6 +499,11 @@ on St.Log pKind, pWho, pText
          break
       case "secret"
          put "<p><font color=" & quote & "#ff9fd0" & quote & "><b>[secret]</b> " & St.Esc(pText) & "</font></p>" into tP
+         break
+      case "world"
+         repeat for each line tLine in pText
+            put "<p><font color=" & quote & "#c9b8ff" & quote & ">" & St.Esc(tLine) & "</font></p>" after tP
+         end repeat
          break
       case "note"
          put "<p><font color=" & quote & "#8a8a92" & quote & "><i>" & St.Esc(pText) & "</i></font></p>" into tP
@@ -463,6 +531,7 @@ end St.Esc
 on St.Status pText
    put pText into field "Status" of card "Studio"
    put pText into field "ModelStatus" of card "Studio"
+   if there is a field "WStatus" of card "World" of me then put pText into field "WStatus" of card "World" of me
 end St.Status
 
 on St.Thinking pOn
@@ -607,3 +676,330 @@ on St.Resume
    set the visible of group "Pause" of card "Studio" to false
    focus on field "Input" of card "Studio"
 end St.Resume
+
+-------------------------------------------------------------------- the world (card "World", owner 23 Nov)
+
+function St.World
+   return sWorld
+end St.World
+
+function St.WorldCell
+   return sWCell
+end St.WorldCell
+
+-- pName, pCols, pRows given (tests): no question asked
+on St.WorldNew pName, pCols, pRows
+   if not St.WorldMayDrop() then exit St.WorldNew
+   if pName is empty then
+      ask "New world: name, columns, rows (up to 24 x 24)" with "Example_01_World, 16, 16"
+      if it is empty or the result is "Cancel" then exit St.WorldNew
+      put word 1 to -1 of item 1 of it into pName
+      put word 1 to -1 of item 2 of it into pCols
+      put word 1 to -1 of item 3 of it into pRows
+   end if
+   if pCols is not an integer then put 16 into pCols
+   if pRows is not an integer then put 16 into pRows
+   put max(2, min(24, pCols)) into pCols
+   put max(2, min(24, pRows)) into pRows
+   lock screen
+   put TTRPG.World.New(pName, pCols, pRows) into sWorld
+   TTRPG.World.Spawn sWorld
+   put the result into sWPlayer
+   put sWorld["player"][sWPlayer]["location"] into sWCell
+   put true into sWDirty
+   St.WorldShow
+   unlock screen
+   St.Status "New world " & TTRPG.World.Words(sWorld["name"]) & ": " & pCols * pRows & " cells, " & \
+         the number of lines of the keys of sWorld["npc"] & " people, " & the number of lines of the keys of sWorld["monsters"] & \
+         " monsters. Save World keeps it."
+end St.WorldNew
+
+-- false = the user kept the unsaved world
+function St.WorldMayDrop
+   if sWDirty is not true then return true
+   answer "The world has changes that are not saved." with "Cancel" or "Drop them" or "Save World"
+   if it is "Cancel" then return false
+   if it is "Save World" then St.WorldSave
+   return true
+end St.WorldMayDrop
+
+on St.WorldLoad pPath
+   local tW, tFolder
+   if pPath is empty then
+      if not St.WorldMayDrop() then exit St.WorldLoad
+      put TTRPG.Path("worlds", "x.json") into tFolder
+      set the itemDel to "/"
+      delete item -1 of tFolder
+      set the itemDel to comma
+      answer file "Load a world" with tFolder
+      if it is empty then exit St.WorldLoad
+      put it into pPath
+   end if
+   put TTRPG.World.Load(pPath) into tW
+   if tW["locations"] is not an array then
+      St.Status "Not a world: " & pPath
+      exit St.WorldLoad
+   end if
+   put tW into sWorld
+   put line 1 of TTRPG.World.Ordered(the keys of sWorld["player"]) into sWPlayer
+   if sWPlayer is empty then
+      TTRPG.World.Spawn sWorld
+      put the result into sWPlayer
+   end if
+   put sWorld["player"][sWPlayer]["location"] into sWCell
+   put false into sWDirty
+   St.WorldShow
+   St.Status "Loaded " & TTRPG.World.Words(sWorld["name"]) & " (" & pPath & ")."
+end St.WorldLoad
+
+on St.WorldSave
+   if sWorld is not an array then
+      St.Status "No world yet: New World first."
+      exit St.WorldSave
+   end if
+   TTRPG.World.Save sWorld
+   put false into sWDirty
+   St.Status "World saved: " & the result
+end St.WorldSave
+
+-- the whole card from sWorld and the chosen cell
+on St.WorldShow
+   local tCR, tKind
+   if there is not a card "World" of me then exit St.WorldShow
+   lock screen
+   if sWorld is not an array then
+      put "No world yet: New World or Load World." into field "WorldName" of card "World" of me
+      put empty into field "Map" of card "World" of me
+      put empty into field "CellData" of card "World" of me
+      put empty into field "HereList" of card "World" of me
+      put empty into field "HereLore" of card "World" of me
+      put empty into sHereKeys
+      St.WorldWords
+      unlock screen
+      exit St.WorldShow
+   end if
+   put TTRPG.World.CellOf(sWCell) into tCR
+   put TTRPG.World.Words(sWorld["locations"][sWCell]["kind"]) into tKind
+   put TTRPG.World.Words(sWorld["name"]) & " (" & sWorld["cols"] & " x " & sWorld["rows"] & ")" into field "WorldName" of card "World" of me
+   put "This cell: " & tKind & " (column " & item 1 of tCR & ", row " & item 2 of tCR & ")" into field "CellLabel" of card "World" of me
+   St.MapDraw
+   put TTRPG.World.CellData(sWorld, sWCell) into field "CellData" of card "World" of me
+   St.HereFill
+   St.WorldWords
+   unlock screen
+end St.WorldShow
+
+-- the map as text: @ in the accent colour, the chosen cell on a light ground
+on St.MapDraw
+   local tLines, tHTML, r, c, tRow, tM, tCR
+   put TTRPG.World.MapLines(sWorld, sWPlayer) into tLines
+   put TTRPG.World.CellOf(sWCell) into tCR
+   repeat with r = 1 to the number of lines of tLines
+      put "<p>" after tHTML
+      put line r of tLines into tRow
+      repeat with c = 1 to sWorld["cols"]
+         put char (c * 2 - 1) of tRow into tM
+         if tM is space then put "&nbsp;" into tM
+         if tM is "@" then put "<font color=" & quote & "#ffd75a" & quote & "><b>@</b></font>" into tM
+         if tM is "&" then put "&amp;" into tM
+         if (c & comma & r) is tCR then put "<font bgcolor=" & quote & "#46466e" & quote & ">" & tM & "</font>" into tM
+         put tM after tHTML
+         if c < sWorld["cols"] then put "&nbsp;" after tHTML
+      end repeat
+      put "</p>" after tHTML
+   end repeat
+   set the htmlText of field "Map" of card "World" of me to tHTML
+end St.MapDraw
+
+-- the map field's mouseUp: which cell (one mark a cell, a space between)
+on St.MapClicked
+   local tIdx, tRowLen, tPos
+   if sWorld is not an array then exit St.MapClicked
+   put word 2 of the clickCharChunk into tIdx
+   if tIdx is not an integer then exit St.MapClicked
+   put sWorld["cols"] * 2 into tRowLen
+   put (tIdx - 1) mod tRowLen + 1 into tPos
+   St.MapClick (tPos + 1) div 2, (tIdx - 1) div tRowLen + 1, the shiftKey is down
+end St.MapClicked
+
+-- a cell next to @ = walk there (unless pJustLook); any other cell = see and edit it
+on St.MapClick pCol, pRow, pJustLook
+   local tLoc, tYou, tWay, tReply, tPlayer
+   put TTRPG.World.CellAt(sWorld, pCol, pRow) into tLoc
+   if tLoc is empty then exit St.MapClick
+   put TTRPG.World.CellOf(sWorld["player"][sWPlayer]["location"]) into tYou
+   if pJustLook is not true then
+      if pCol is item 1 of tYou and pRow is item 2 of tYou - 1 then put "north" into tWay
+      if pCol is item 1 of tYou and pRow is item 2 of tYou + 1 then put "south" into tWay
+      if pRow is item 2 of tYou and pCol is item 1 of tYou + 1 then put "east" into tWay
+      if pRow is item 2 of tYou and pCol is item 1 of tYou - 1 then put "west" into tWay
+   end if
+   if tWay is not empty then
+      TTRPG.World.Act sWorld, sWPlayer, "go " & tWay
+      put the result into tReply
+      put TTRPG.Player() into tPlayer
+      St.Log "player", tPlayer["name"], "go " & tWay
+      St.Log "world", empty, tReply
+      put true into sWDirty
+      St.Status "You go " & tWay & "."
+   end if
+   put tLoc into sWCell
+   St.WorldShow
+end St.MapClick
+
+-- Apply: the edited lines into the cell. Lines not understood: asked first (pForce skips the question)
+on St.CellApply pForce
+   local tText, tCopy, tBad
+   if sWorld is not an array then exit St.CellApply
+   put field "CellData" of card "World" of me into tText
+   put sWorld into tCopy
+   TTRPG.World.SetCellData tCopy, sWCell, tText
+   put the result into tBad
+   if tBad is not empty and pForce is not true then
+      answer "These lines are not understood and would be left out:" & return & tBad with "Cancel" or "Apply the rest"
+      if it is not "Apply the rest" then exit St.CellApply
+   end if
+   put tCopy into sWorld
+   put true into sWDirty
+   St.WorldShow
+   if tBad is empty then St.Status "Cell changed."
+   else St.Status "Cell changed; left out: " & line 1 of tBad
+end St.CellApply
+
+-- the people and monsters on the chosen cell
+on St.HereFill
+   local tK, tList
+   put empty into sHereKeys
+   put 0 into sHereIdx
+   repeat for each line tK in TTRPG.World.Here(sWorld, sWCell, "npc")
+      put TTRPG.World.Words(sWorld["npc"][tK]["role"]) & "  (person)" & return after tList
+      put "npc" & tab & tK & return after sHereKeys
+   end repeat
+   repeat for each line tK in TTRPG.World.Here(sWorld, sWCell, "monsters")
+      put TTRPG.World.Words(sWorld["monsters"][tK]["kind"]) & "  (monster)" & return after tList
+      put "monsters" & tab & tK & return after sHereKeys
+   end repeat
+   delete the last char of tList
+   delete the last char of sHereKeys
+   if tList is empty then put "Nobody here." into tList
+   put tList into field "HereList" of card "World" of me
+   put empty into field "HereLore" of card "World" of me
+end St.HereFill
+
+on St.HerePick pLine
+   local tKind, tK, tA, tOut, tAt
+   if pLine is empty then put the hilitedLine of field "HereList" of card "World" of me into pLine
+   if pLine is not an integer or pLine < 1 or pLine > the number of lines of sHereKeys then exit St.HerePick
+   put pLine into sHereIdx
+   set the hilitedLine of field "HereList" of card "World" of me to pLine
+   set the itemDel to tab
+   put item 1 of line pLine of sHereKeys into tKind
+   put item 2 of line pLine of sHereKeys into tK
+   set the itemDel to comma
+   put sWorld[tKind][tK] into tA
+   if tKind is "npc" then
+      put TTRPG.World.Words(tA["role"]) into tOut
+      if tA["lore"] is not empty then
+         put return & tA["lore"] after tOut
+      end if
+   else
+      put TTRPG.World.Words(tA["kind"]) into tOut
+   end if
+   put empty into tAt
+   repeat for each item tK in "Strength,Constitution,Dexterity,Intelligence,Wisdom,Charisma,AC,HP"
+      if tA["attributes"][tK] is not empty then put tK & " " & tA["attributes"][tK] & ", " after tAt
+   end repeat
+   if tAt is not empty then put return & return & char 1 to -3 of tAt after tOut
+   put tOut into field "HereLore" of card "World" of me
+end St.HerePick
+
+-- Add as character: by hand (name = role, look = lore) or the DM model makes one from role and lore.
+-- pHow "hand" / "model" (tests) skips the question
+on St.HereAdd pHow
+   local tLine, tKind, tK, tAsk, tIdx, tA
+   put sHereIdx into tLine
+   if tLine is not an integer or tLine < 1 or tLine > the number of lines of sHereKeys then
+      St.Status "Click someone in Here first."
+      exit St.HereAdd
+   end if
+   set the itemDel to tab
+   put item 1 of line tLine of sHereKeys into tKind
+   put item 2 of line tLine of sHereKeys into tK
+   set the itemDel to comma
+   if tKind is "npc" then
+      put TTRPG.World.CharacterAsk(sWorld, tK) into tAsk
+      put TTRPG.World.Words(sWorld["npc"][tK]["role"]) into tA["name"]
+      put sWorld["npc"][tK]["lore"] into tA["look"]
+   else
+      put TTRPG.World.Words(sWorld["monsters"][tK]["kind"]) into tAsk
+      put tAsk into tA["name"]
+   end if
+   if pHow is empty then
+      answer "Add " & tA["name"] & " as a character:" with "Cancel" or "By hand" or "Ask the DM model"
+      if it is "By hand" then put "hand" into pHow
+      if it is "Ask the DM model" then put "model" into pHow
+   end if
+   if pHow is "hand" then
+      put TTRPG.Char.New() into tIdx
+      TTRPG.Char.Update tIdx, tA
+      go card "Studio"
+      St.FillChars
+      St.CharPick tIdx
+      St.Status tA["name"] & " is a character now: edit it on the right."
+   else if pHow is "model" then
+      if not St.Ready() then exit St.HereAdd
+      go card "Studio"
+      St.Log "note", empty, "a character is being made: " & tAsk
+      St.Thinking true
+      TTRPG.Character.Make tAsk
+   end if
+end St.HereAdd
+
+-- Scene here: a New Scene from where you stand (@)
+on St.SceneHere
+   if sWorld is not an array then
+      St.Status "No world yet: New World first."
+      exit St.SceneHere
+   end if
+   if not St.Ready() then exit St.SceneHere
+   go card "Studio"
+   St.NewScene TTRPG.World.SceneIdea(sWorld, sWPlayer)
+end St.SceneHere
+
+-- Verbose on: the DM model words the chosen cell (only what can be seen); remembered while the cell stays the same
+on St.WorldWords
+   local tOn, tKey
+   if there is not a card "World" of me then exit St.WorldWords
+   put the hilite of button "Verbose" of card "World" of me into tOn
+   set the visible of field "WordsLabel" of card "World" of me to tOn
+   set the visible of field "CellWords" of card "World" of me to tOn
+   if not tOn or sWorld is not an array then exit St.WorldWords
+   put TTRPG.World.TilePrompt(sWorld, sWCell) into tKey
+   if sWords[tKey] is not empty then
+      put sWords[tKey] into field "CellWords" of card "World" of me
+      exit St.WorldWords
+   end if
+   if TTRPG.LM.DM() is empty then
+      put "Load a model first (Studio card, left) and the DM puts this cell into words." into field "CellWords" of card "World" of me
+      exit St.WorldWords
+   end if
+   if TTRPG.Busy() or TTRPG.LM.Busy() then
+      put "The model is busy; click the cell again in a moment." into field "CellWords" of card "World" of me
+      exit St.WorldWords
+   end if
+   put "thinking..." into field "CellWords" of card "World" of me
+   put tKey into sWordsKey
+   put sWCell into sWordsLoc
+   TTRPG.World.Describe sWorld, sWCell, the long id of me, "St.OnWorldWords"
+   if the result is not empty then put "The model did not take it: " & the result into field "CellWords" of card "World" of me
+end St.WorldWords
+
+on St.OnWorldWords pText, pErr
+   if pErr is not empty then
+      put "model error: " & pErr into field "CellWords" of card "World" of me
+      exit St.OnWorldWords
+   end if
+   put TTRPG.CleanNarration(pText, 7) into pText
+   put pText into sWords[sWordsKey]
+   if sWCell is sWordsLoc then put pText into field "CellWords" of card "World" of me
+end St.OnWorldWords
