@@ -15,6 +15,12 @@
 - Tests: `lc_world_test.txt` (0 fails), new `lc_world_ui_test.txt` (0 fails), the old ones still pass.
 - Not seen on a screen yet: the map font (Courier New 18) and the card's look. LIB_TEST's copy is older.
 - Next, after his look: a model that EDITS the cell data (owner: "modifiable by the users/LLM").
+- OWNER SAW (23 Nov): Verbose answers "as if looking at a LiveCode object instead of an RPG map", and it
+  "sees the total map sometimes". Fix later: a real system prompt for world_tile (what to output, plain
+  RPG narration, never mention data / JSON / fields), send the tile as plain lines rather than JSON, and
+  check that nothing beyond the one cell reaches it. PARKED: the owner put the whole Studio in one bubble at
+  the bottom of the tube, "TTRPG STUDIO: Total Application Review & Comments Required by Owner." (n-58af1221):
+  a full application that needs dedicated testing, feedback and design; his head is not in TTRPG now.
 
 ## 19 Nov 2026 evening: the old studio's world code is in (branch `ttrpg-world-code`, not merged)
 - `ref/ttrpg_world.py` (spec) + `livecode/lib_ttrpg_world.livecodescript` (port), same answers on
