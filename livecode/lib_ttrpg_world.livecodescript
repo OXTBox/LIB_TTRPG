@@ -21,6 +21,9 @@ script "lib_ttrpg_world"
 ##   TTRPG.World.CharacterAsk(pWorld, pNPC)     a one-line ask for TTRPG.Character.Make
 ##   TTRPG.World.Save pWorld / Load(pPath) / SaveObject pWorld, pKind, pName / LoadObject @pWorld, pKind, pPath
 ##   TTRPG.World.ListsRoot() / TTRPG.World.SetListsRoot pFolder / TTRPG.World.List(pName)
+##   World panel (23 Nov): TTRPG.World.CellData(pWorld, pLoc) / SetCellData @pWorld, pLoc, pText (plain lines,
+##   the DM's edit) / MapLines(pWorld, pPlayer) (@ & n m .) / Here(pWorld, pLoc, "npc"|"monsters") /
+##   Describe pWorld, pLoc, pTarget, pMsg (Verbose: the DM model words the visible tile)
 ##   TTRPG.World.SelfTest(pVectorsPath)         ref/world_vectors.json + a generated world
 ## THE RULE: hidden items, locked contents and closed boxes never reach the view or the tile.
 ######################################################################################
@@ -197,6 +200,11 @@ private function wwOrdered pKeys
    sort lines of pKeys ascending text
    return pKeys
 end wwOrdered
+
+-- lines in the world's order (the panel lists with it)
+function TTRPG.World.Ordered pKeys
+   return wwOrdered(pKeys)
+end TTRPG.World.Ordered
 
 -- the name whose words the text says most of; ties -> first in order; none -> empty
 function TTRPG.World.BestMatch pNames, pText
@@ -543,6 +551,144 @@ function TTRPG.World.NPCPrompt pWorld, pNPC
    return TTRPG.Fill("world_npc", tA)
 end TTRPG.World.NPCPrompt
 
+-------------------------------------------------------------------- the World panel (23 Nov): plain data + a text map
+-- Owner (23 Nov): no "You are at..." prose in the panel; the cell is plain data the DM (or later a model)
+-- edits; a Verbose switch has the DM model word it (from the visible tile only: TTRPG.World.Describe).
+-- The DM sees everything here, hidden things marked (like DM Notes); NPCs and monsters are listed apart.
+
+-- names of the npc / monsters on a location (pKind "npc" or "monsters"), in order
+function TTRPG.World.Here pWorld, pLoc, pKind
+   return wwHere(pWorld, pLoc, pKind)
+end TTRPG.World.Here
+
+-- the cell as plain lines: kind / ecosystem / description / box: Name (flags) / in Box: Item (hidden)
+function TTRPG.World.CellData pWorld, pLoc
+   local tL, tOut, tCN, tC, tF, tI
+   put pWorld["locations"][pLoc] into tL
+   if tL is not an array then return empty
+   put "kind: " & tL["kind"] & return & "ecosystem: " & tL["ecosystem"] & return & "description: " & tL["description"] into tOut
+   repeat for each line tCN in wwOrdered(the keys of tL["containers"])
+      put tL["containers"][tCN] into tC
+      if tC["open"] is true then put "open" into tF
+      else put "closed" into tF
+      if tC["locked"] is true then put ", locked" after tF
+      if tC["visible"] is not true then put ", hidden" after tF
+      put return & "box: " & tCN & " (" & tF & ")" after tOut
+      repeat for each line tI in wwOrdered(the keys of tC["items"])
+         put return & "in " & tCN & ": " & tI after tOut
+         if tC["items"][tI]["visible"] is not true then put " (hidden)" after tOut
+      end repeat
+   end repeat
+   return tOut
+end TTRPG.World.CellData
+
+private function wwFlags pText
+   local tOut, tF
+   repeat for each item tF in pText
+      put toLower(word 1 to -1 of tF) into tF
+      if tF is not empty then put tF & return after tOut
+   end repeat
+   delete the last char of tOut
+   return tOut
+end wwFlags
+
+private command wwBox @pBoxes, pName
+   if pBoxes[pName] is an array then exit wwBox
+   put pName into pBoxes[pName]["name"]
+   put true into pBoxes[pName]["open"]
+   put false into pBoxes[pName]["locked"]
+   put true into pBoxes[pName]["visible"]
+end wwBox
+
+-- CellData text back into the cell: its boxes become exactly those listed. The result = lines not understood.
+command TTRPG.World.SetCellData @pWorld, pLoc, pText
+   local tBad, tBoxes, tLine, tKey, tVal, tName, tFlags, tItem
+   if pWorld["locations"][pLoc] is not an array then return "no such cell: " & pLoc
+   replace numToChar(13) with empty in pText
+   repeat for each line tLine in pText
+      put word 1 to -1 of tLine into tLine
+      if tLine is empty then next repeat
+      put empty into tFlags
+      if matchText(tLine, "(?i)^(kind|ecosystem|description)\s*:\s*(.*)$", tKey, tVal) then
+         put word 1 to -1 of tVal into pWorld["locations"][pLoc][toLower(tKey)]
+      else if matchText(tLine, "(?i)^box\s*:\s*(.+?)\s*(?:\(([^()]*)\))?$", tName, tFlags) then
+         put wwFlags(tFlags) into tFlags
+         wwBox tBoxes, tName
+         put ("locked" is among the lines of tFlags) into tBoxes[tName]["locked"]
+         put not ("closed" is among the lines of tFlags or tBoxes[tName]["locked"]) into tBoxes[tName]["open"]
+         put not ("hidden" is among the lines of tFlags) into tBoxes[tName]["visible"]
+      else if matchText(tLine, "(?i)^in\s+(.+?)\s*:\s*(.+?)\s*(?:\(([^()]*)\))?$", tName, tItem, tFlags) then
+         wwBox tBoxes, tName
+         put tItem into tBoxes[tName]["items"][tItem]["name"]
+         put not ("hidden" is among the lines of wwFlags(tFlags)) into tBoxes[tName]["items"][tItem]["visible"]
+      else
+         put tLine & return after tBad
+      end if
+   end repeat
+   delete the last char of tBad
+   delete variable pWorld["locations"][pLoc]["containers"]
+   if tBoxes is an array then put tBoxes into pWorld["locations"][pLoc]["containers"]
+   return tBad
+end TTRPG.World.SetCellData
+
+-- the world as rows of marks, one a cell, a space between: @ you, & people and monsters, n people,
+-- m monsters, . a place, blank = no cell
+function TTRPG.World.MapLines pWorld, pPlayer
+   local tCells, tWho, tK, tKind, tCR, tYou, tOut, r, c, tRow, tM
+   repeat for each line tK in the keys of pWorld["locations"]
+      put TTRPG.World.CellOf(tK) into tCR
+      if tCR is not empty then put true into tCells[tCR]
+   end repeat
+   repeat for each item tKind in "npc,monsters"
+      repeat for each line tK in the keys of pWorld[tKind]
+         put TTRPG.World.CellOf(pWorld[tKind][tK]["location"]) into tCR
+         if tCR is not empty and tKind is not among the items of tWho[tCR] then put tKind & comma after tWho[tCR]
+      end repeat
+   end repeat
+   put TTRPG.World.CellOf(pWorld["player"][pPlayer]["location"]) into tYou
+   repeat with r = 1 to pWorld["rows"]
+      put empty into tRow
+      repeat with c = 1 to pWorld["cols"]
+         put c & comma & r into tCR
+         if tCR is tYou then
+            put "@" into tM
+         else if tCells[tCR] is not true then
+            put space into tM
+         else if tWho[tCR] is "npc,monsters," or tWho[tCR] is "monsters,npc," then
+            put "&" into tM
+         else if tWho[tCR] is "npc," then
+            put "n" into tM
+         else if tWho[tCR] is "monsters," then
+            put "m" into tM
+         else
+            put "." into tM
+         end if
+         put tM & space after tRow
+      end repeat
+      delete the last char of tRow
+      put tRow & return after tOut
+   end repeat
+   delete the last char of tOut
+   return tOut
+end TTRPG.World.MapLines
+
+-- Verbose: the DM model words the VISIBLE tile (prompts/world_tile.txt). The reply comes as
+-- dispatch pMsg to pTarget with pText, pError. The result: "busy", "no model", or empty.
+command TTRPG.World.Describe pWorld, pLoc, pTarget, pMsg
+   local tA
+   if TTRPG.LM.DM() is empty then return "no model"
+   put "world" into tA["role"]
+   put TTRPG.LM.DM() into tA["model"]
+   put TTRPG.World.TilePrompt(pWorld, pLoc) into tA["system"]
+   put "Describe the location." into tA["user"]
+   put 0.8 into tA["temperature"]
+   put TTRPG.Cfg.Get("max_dm") into tA["maxTokens"]
+   put pTarget into tA["target"]
+   put pMsg into tA["msg"]
+   TTRPG.LM.Chat tA
+   return the result
+end TTRPG.World.Describe
+
 -------------------------------------------------------------------- changing a world
 
 -- was InterpregPlayerAction (never finished). The result = the reply; empty = not a world action
@@ -758,6 +904,29 @@ function TTRPG.World.SelfTest pVectorsPath
    wwCheck tOut, tFails, "scene_idea", TTRPG.World.SceneIdea(tV["start"], "Player1"), tV["scene_idea"]
    wwCheck tOut, tFails, "character_ask", TTRPG.World.CharacterAsk(tV["start"], "Old_Miller_c1r1"), tV["character_ask"]
    wwCheck tOut, tFails, "tile", wwFlat(TTRPG.World.Tile(tV["start"], "Old_Mill_c1r1"), empty), wwFlat(tV["tile"], empty)
+   wwCheck tOut, tFails, "cell_data", TTRPG.World.CellData(tV["start"], "Old_Mill_c1r1"), tV["cell_data"]
+   put tV["start"] into tW
+   TTRPG.World.SetCellData tW, "Old_Mill_c1r1", tV["edit"]["text"]
+   put the result into tReply
+   put empty into tName
+   repeat with tT = 1 to the number of lines of the keys of tV["edit"]["bad"]
+      put tV["edit"]["bad"][tT] & return after tName
+   end repeat
+   delete the last char of tName
+   wwCheck tOut, tFails, "set_cell_data: lines not understood", tReply, tName
+   wwCheck tOut, tFails, "set_cell_data: the cell", wwFlat(tW["locations"]["Old_Mill_c1r1"], empty), wwFlat(tV["edit"]["cell"], empty)
+   TTRPG.World.SetCellData tW, "Old_Mill_c1r1", TTRPG.World.CellData(tW, "Old_Mill_c1r1")
+   put the result into tReply
+   wwCheck tOut, tFails, "cell_data -> set_cell_data round trip", tReply & wwFlat(tW["locations"]["Old_Mill_c1r1"], empty), wwFlat(tV["edit"]["cell"], empty)
+   put tV["start"] into tW
+   put 3 into tW["cols"]
+   put 2 into tW["rows"]
+   put empty into tName
+   repeat with tT = 1 to the number of lines of the keys of tV["map"]
+      put tV["map"][tT] & return after tName
+   end repeat
+   delete the last char of tName
+   wwCheck tOut, tFails, "map_lines", TTRPG.World.MapLines(tW, "Player1"), tName
    -- a generated world (words from LIB_LISTS; counted, never printed)
    if TTRPG.World.ListsRoot() is empty then
       put "FAIL LIB_LISTS not found" & return after tOut

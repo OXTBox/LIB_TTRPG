@@ -305,6 +305,113 @@ def npc_prompt(w, npc):
     return fill('world_npc', role=words(n.get('role', '')), name=words(n.get('role', '')) or words(npc), lore=n.get('lore', ''))
 
 
+# ------------------------------------------------------------------ the World panel (23 Nov): plain data + a text map
+# Owner (23 Nov): no "You are at..." prose in the panel; the cell is plain data the DM (or later a model)
+# edits; a Verbose switch has the DM model word it (from visible_tile only, through tile_prompt).
+# The DM sees everything here, hidden things marked (like DM Notes); NPCs and monsters are listed apart.
+
+MARKS = {'you': '@', 'both': '&', 'npc': 'n', 'monsters': 'm', 'place': '.', 'none': ' '}
+
+
+def cell_data(w, loc):
+    """the cell as plain lines: kind / ecosystem / description / box: Name (flags) / in Box: Item (hidden)"""
+    L = d(d(w.get('locations')).get(loc))
+    if not L:
+        return ''
+    out = ['kind: ' + L.get('kind', ''), 'ecosystem: ' + L.get('ecosystem', ''), 'description: ' + L.get('description', '')]
+    for cn, c in ordered_items(L.get('containers')):
+        flags = ['open' if c.get('open') is True else 'closed']
+        if c.get('locked') is True:
+            flags.append('locked')
+        if c.get('visible') is not True:
+            flags.append('hidden')
+        out.append('box: %s (%s)' % (cn, ', '.join(flags)))
+        for i, it in ordered_items(c.get('items')):
+            out.append('in %s: %s%s' % (cn, i, '' if it.get('visible') is True else ' (hidden)'))
+    return '\n'.join(out)
+
+
+def flags_of(text):
+    return [f.strip().lower() for f in (text or '').split(',') if f.strip()]
+
+
+def set_cell_data(w, loc, text):
+    """cell_data text back into the cell: its boxes become exactly those listed. The result = lines not understood."""
+    L = d(d(w.get('locations')).get(loc))
+    if not L:
+        return ['no such cell: ' + loc]
+    bad, boxes = [], {}
+
+    def box(name):
+        if name not in boxes:
+            boxes[name] = {'name': name, 'open': True, 'locked': False, 'visible': True, 'items': {}}
+        return boxes[name]
+    for raw in text.splitlines():
+        line = raw.strip()
+        if not line:
+            continue
+        m = re.match(r'(?i)(kind|ecosystem|description)\s*:\s*(.*)$', line)
+        if m:
+            L[m.group(1).lower()] = m.group(2).strip()
+            continue
+        m = re.match(r'(?i)box\s*:\s*(.+?)\s*(?:\(([^()]*)\))?$', line)
+        if m:
+            f = flags_of(m.group(2))
+            c = box(m.group(1))
+            c['locked'] = 'locked' in f
+            c['open'] = not ('closed' in f or c['locked'])
+            c['visible'] = 'hidden' not in f
+            continue
+        m = re.match(r'(?i)in\s+(.+?)\s*:\s*(.+?)\s*(?:\(([^()]*)\))?$', line)
+        if m:
+            box(m.group(1))['items'][m.group(2)] = {'name': m.group(2), 'visible': 'hidden' not in flags_of(m.group(3))}
+            continue
+        bad.append(line)
+    L['containers'] = boxes
+    return bad
+
+
+def here_on_cells(w):
+    """(col, row) -> set of 'npc' / 'monsters' standing there"""
+    out = {}
+    for kind in ('npc', 'monsters'):
+        for k, a in d(w.get(kind)).items():
+            cr = cell_of(d(a).get('location', ''))
+            if cr:
+                out.setdefault(cr, set()).add(kind)
+    return out
+
+
+def map_lines(w, player):
+    """the world as rows of marks, one a cell, a space between: @ you, & people and monsters, n people,
+    m monsters, . a place, blank = no cell"""
+    cells = {cell_of(k) for k in d(w.get('locations')) if cell_of(k)}
+    who = here_on_cells(w)
+    you = cell_of(d(d(w.get('player')).get(player)).get('location', ''))
+    rows = []
+    for r in range(1, int(w.get('rows') or 0) + 1):
+        marks = []
+        for c in range(1, int(w.get('cols') or 0) + 1):
+            h = who.get((c, r), set())
+            if (c, r) == you:
+                marks.append(MARKS['you'])
+            elif (c, r) not in cells:
+                marks.append(MARKS['none'])
+            elif len(h) == 2:
+                marks.append(MARKS['both'])
+            elif h:
+                marks.append(MARKS[h.pop()])
+            else:
+                marks.append(MARKS['place'])
+        rows.append(' '.join(marks))
+    return rows
+
+
+EDIT = '\n'.join(['kind: Old Mill', 'ecosystem: damp moss', 'description: The wheel has stopped.',
+                   'box: Iron Chest (open)', 'in Iron Chest: Rope', 'BOX:  Crate  ( OPEN )', 'in Crate: Lantern',
+                   'in Barrel: Apple (hidden)', 'box: Sack (closed, locked, hidden)', 'hello there'])
+
+
 # ------------------------------------------------------------------ changing a world (pure on w)
 
 def act(w, player, text):
@@ -501,6 +608,12 @@ def make_vectors():
     out['scene_idea'] = scene_idea(sample_world(), 'Player1')
     out['character_ask'] = character_ask(sample_world(), 'Old_Miller_c1r1')
     out['tile'] = visible_tile(sample_world(), 'Old_Mill_c1r1')
+    out['cell_data'] = cell_data(sample_world(), 'Old_Mill_c1r1')
+    w = sample_world()
+    out['edit'] = {'text': EDIT, 'bad': set_cell_data(w, 'Old_Mill_c1r1', EDIT), 'cell': w['locations']['Old_Mill_c1r1']}
+    w = sample_world()
+    w['cols'], w['rows'] = 3, 2
+    out['map'] = map_lines(w, 'Player1')
     return out
 
 
@@ -524,6 +637,18 @@ def check_vectors(v):
         fails.append('scene_idea')
     if norm(visible_tile(v['start'], 'Old_Mill_c1r1')) != norm(v['tile']):
         fails.append('tile')
+    if cell_data(v['start'], 'Old_Mill_c1r1') != v['cell_data']:
+        fails.append('cell_data')
+    w = json.loads(json.dumps(v['start']))
+    if set_cell_data(w, 'Old_Mill_c1r1', v['edit']['text']) != v['edit']['bad'] or \
+            norm(w['locations']['Old_Mill_c1r1']) != norm(v['edit']['cell']):
+        fails.append('set_cell_data')
+    if set_cell_data(w, 'Old_Mill_c1r1', cell_data(w, 'Old_Mill_c1r1')) or norm(w['locations']['Old_Mill_c1r1']) != norm(v['edit']['cell']):
+        fails.append('cell_data -> set_cell_data round trip')
+    w = json.loads(json.dumps(v['start']))
+    w['cols'], w['rows'] = 3, 2
+    if map_lines(w, 'Player1') != v['map']:
+        fails.append('map_lines')
     tp = tile_prompt(v['start'], 'Old_Mill_c1r1')
     if 'Silver Key' in tp or 'Lantern' in tp or 'Rope' not in tp:
         fails.append('tile prompt shows a hidden or shut-away item, or misses a visible one')

@@ -2920,5 +2920,69 @@
    }
   },
   "monsters": {}
- }
+ },
+ "cell_data": "kind: Old Mill\necosystem: damp moss\ndescription: A wheel creaks in the dark.\nbox: Crate (closed)\nin Crate: Lantern\nbox: Iron Chest (open)\nin Iron Chest: Rope\nin Iron Chest: Silver Key (hidden)",
+ "edit": {
+  "text": "kind: Old Mill\necosystem: damp moss\ndescription: The wheel has stopped.\nbox: Iron Chest (open)\nin Iron Chest: Rope\nBOX:  Crate  ( OPEN )\nin Crate: Lantern\nin Barrel: Apple (hidden)\nbox: Sack (closed, locked, hidden)\nhello there",
+  "bad": [
+   "hello there"
+  ],
+  "cell": {
+   "name": "Old_Mill_c1r1",
+   "kind": "Old Mill",
+   "col": 1,
+   "row": 1,
+   "ecosystem": "damp moss",
+   "description": "The wheel has stopped.",
+   "containers": {
+    "Iron Chest": {
+     "name": "Iron Chest",
+     "open": true,
+     "locked": false,
+     "visible": true,
+     "items": {
+      "Rope": {
+       "name": "Rope",
+       "visible": true
+      }
+     }
+    },
+    "Crate": {
+     "name": "Crate",
+     "open": true,
+     "locked": false,
+     "visible": true,
+     "items": {
+      "Lantern": {
+       "name": "Lantern",
+       "visible": true
+      }
+     }
+    },
+    "Barrel": {
+     "name": "Barrel",
+     "open": true,
+     "locked": false,
+     "visible": true,
+     "items": {
+      "Apple": {
+       "name": "Apple",
+       "visible": false
+      }
+     }
+    },
+    "Sack": {
+     "name": "Sack",
+     "open": false,
+     "locked": true,
+     "visible": false,
+     "items": {}
+    }
+   }
+  }
+ },
+ "map": [
+  "@ m  ",
+  ".    "
+ ]
 }

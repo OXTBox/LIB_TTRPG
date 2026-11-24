@@ -1,0 +1,138 @@
+-- TTRPG Studio: the World card (owner, 23 Nov) with no window and a MOCK model. Builds first.
+-- LIB_DATA points at a temp folder (Data.UseRoot): the real Data folder is untouched.
+global gMockReply, gMockSeen
+put "/home/igame3d/projects/LIB_TTRPG" into tRoot
+put 0 into tFails
+start using stack (tRoot & "/livecode/build_studio.livecodescript")
+Build.Studio tRoot
+put the result into tPath
+if tPath begins with "ERROR" then return "FAIL build " & tPath
+put "C:/LIB_MCP/ttrpg_world_ui_" & the milliseconds into tData
+create folder tData
+start using stack "/home/igame3d/projects/LIB_DATA/livecode/lib_data.livecodescript"
+Data.UseRoot tData
+create stack "ttrpg_mock"
+set the script of stack "ttrpg_mock" to "global gMockReply, gMockSeen" & cr & "function TTRPG.Mock pRole, pSystem, pUser" & cr & "put pSystem into gMockSeen[pRole]" & cr & "return gMockReply[pRole]" & cr & "end TTRPG.Mock"
+put "{" & quote & "title" & quote & ":" & quote & "The Mill Scene" & quote & "," & quote & "truth" & quote & ":" & quote & "t" & quote & "," & quote & "place" & quote & ":" & quote & "A mill." & quote & "," & quote & "happening" & quote & ":" & quote & "h" & quote & "," & quote & "wrong" & quote & ":" & quote & "w" & quote & "," & quote & "clues" & quote & ":[{" & quote & "where" & quote & ":" & quote & "the wheel" & quote & "," & quote & "skill" & quote & ":" & quote & "Arcana" & quote & "," & quote & "fact" & quote & ":" & quote & "A carving." & quote & "}]," & quote & "npc" & quote & ":{" & quote & "name" & quote & ":" & quote & "Ona" & quote & "," & quote & "look" & quote & ":" & quote & "dusty" & quote & "," & quote & "voice" & quote & ":" & quote & "dry" & quote & "," & quote & "wants" & quote & ":" & quote & "grain" & quote & "," & quote & "secret" & quote & ":" & quote & "s" & quote & "}}" into gMockReply["make"]
+put "{" & quote & "kind" & quote & ":" & quote & "look" & quote & "," & quote & "who" & quote & ":" & quote & "nobody" & quote & "," & quote & "spot" & quote & ":" & quote & "1" & quote & "," & quote & "skill" & quote & ":" & quote & "Arcana" & quote & "}" into gMockReply["referee"]
+put "Dust hangs. The wheel is still." into gMockReply["dm"]
+put "Hm." into gMockReply["voice"]
+put "Short." into gMockReply["summary"]
+put "Moss creeps over old stone. A box waits by the wall." into gMockReply["world"]
+put the long id of stack "TTRPG_Studio" into tS
+dispatch "St.Init" to stack "TTRPG_Studio"
+put "card World built: " & (there is a card "World" of stack "TTRPG_Studio") & ", button World on Studio: " & (there is a button "World" of card "Studio" of stack "TTRPG_Studio") & cr into tLog
+put "no world: " & field "WorldName" of card "World" of stack "TTRPG_Studio" & cr after tLog
+
+-- 1 New World (no model loaded: the world needs none)
+set the randomSeed to 7
+dispatch "St.WorldNew" to stack "TTRPG_Studio" with "Test_World", 6, 5
+put value("St.World()", stack "TTRPG_Studio") into tW
+put tW["player"]["Player1"]["location"] into tYouLoc
+put TTRPG.World.CellOf(tYouLoc) into tYou
+put "new world: " & field "WorldName" of card "World" of stack "TTRPG_Studio" & ", " & the number of lines of the keys of tW["locations"] & " cells, you at " & tYou & cr after tLog
+put field "Map" of card "World" of stack "TTRPG_Studio" into tMap
+put "map rows " & the number of lines of tMap & ", row length " & the number of chars of line 1 of tMap & ", @ count " & (the number of chars of tMap - the number of chars of replaceText(tMap, "@", empty)) & cr after tLog
+if the number of lines of tMap is not 5 or the number of chars of line 1 of tMap is not 11 then add 1 to tFails
+put "@ at its place on the map: " & (char (item 1 of tYou * 2 - 1) of line (item 2 of tYou) of tMap is "@") & cr after tLog
+if char (item 1 of tYou * 2 - 1) of line (item 2 of tYou) of tMap is not "@" then add 1 to tFails
+put "cell data shown: " & (line 1 of field "CellData" of card "World" of stack "TTRPG_Studio" begins with "kind: ") & cr after tLog
+
+-- 2 a far cell: looked at, not walked to
+put item 1 of tYou into tC
+if tC > 3 then put 1 into tC
+else put 6 into tC
+put item 2 of tYou into tR
+dispatch "St.MapClick" to stack "TTRPG_Studio" with tC, tR
+put value("St.World()", stack "TTRPG_Studio") into tW
+put "far click: chosen " & TTRPG.World.CellOf(value("St.WorldCell()", stack "TTRPG_Studio")) & ", you still at " & TTRPG.World.CellOf(tW["player"]["Player1"]["location"]) & cr after tLog
+if TTRPG.World.CellOf(tW["player"]["Player1"]["location"]) is not tYou then add 1 to tFails
+
+-- 3 a neighbour: walked to (row above, or below on row 1)
+if item 2 of tYou > 1 then
+   put item 2 of tYou - 1 into tR
+   put "north" into tWay
+else
+   put item 2 of tYou + 1 into tR
+   put "south" into tWay
+end if
+dispatch "St.MapClick" to stack "TTRPG_Studio" with item 1 of tYou, tR
+put value("St.World()", stack "TTRPG_Studio") into tW
+put TTRPG.World.CellOf(tW["player"]["Player1"]["location"]) into tNow
+put "walk " & tWay & ": now at " & tNow & ", chosen = where you stand: " & (value("St.WorldCell()", stack "TTRPG_Studio") is tW["player"]["Player1"]["location"]) & cr after tLog
+if tNow is not (item 1 of tYou & comma & tR) then add 1 to tFails
+put "the walk is in the log: " & (field "Log" of card "Studio" of stack "TTRPG_Studio" contains "go " & tWay) & cr after tLog
+
+-- 4 edit the cell's data, Apply (one line not understood: forced)
+put "kind: Test Mill" & cr & "ecosystem: dust" & cr & "description: Flour on the floor." & cr & "box: Bin (open)" & cr & "in Bin: Rope" & cr & "in Bin: Secret Gem (hidden)" & cr & "nonsense line" into field "CellData" of card "World" of stack "TTRPG_Studio"
+dispatch "St.CellApply" to stack "TTRPG_Studio" with true
+put value("St.World()", stack "TTRPG_Studio") into tW
+put value("St.WorldCell()", stack "TTRPG_Studio") into tLoc
+put "applied: kind " & tW["locations"][tLoc]["kind"] & ", boxes " & the keys of tW["locations"][tLoc]["containers"] & ", gem hidden " & (tW["locations"][tLoc]["containers"]["Bin"]["items"]["Secret Gem"]["visible"] is false) & cr after tLog
+put "status: " & field "WStatus" of card "World" of stack "TTRPG_Studio" & cr after tLog
+if tW["locations"][tLoc]["kind"] is not "Test Mill" then add 1 to tFails
+
+-- 5 typing in the Studio tries the world first (no model, no scene)
+put "take the rope" into field "Input" of card "Studio" of stack "TTRPG_Studio"
+dispatch "St.Send" to stack "TTRPG_Studio"
+put value("St.World()", stack "TTRPG_Studio") into tW
+put "typed take: in the pack " & (tW["player"]["Player1"]["containers"]["Backpack"]["items"]["Rope"] is an array) & ", input cleared " & (field "Input" of card "Studio" of stack "TTRPG_Studio" is empty) & cr after tLog
+if tW["player"]["Player1"]["containers"]["Backpack"]["items"]["Rope"] is not an array then add 1 to tFails
+put "sing a song" into field "Input" of card "Studio" of stack "TTRPG_Studio"
+dispatch "St.Send" to stack "TTRPG_Studio"
+put "not a world action, no model: status " & field "Status" of card "Studio" of stack "TTRPG_Studio" & cr after tLog
+put empty into field "Input" of card "Studio" of stack "TTRPG_Studio"
+
+-- 6 Verbose: the mock model words the cell from the VISIBLE tile only
+TTRPG.LM.Set "mock", the long id of stack "ttrpg_mock"
+TTRPG.LM.UseModels "mock-dm", empty
+set the hilite of button "Verbose" of card "World" of stack "TTRPG_Studio" to true
+dispatch "St.WorldWords" to stack "TTRPG_Studio"
+put "verbose words: " & field "CellWords" of card "World" of stack "TTRPG_Studio" & ", shown " & the visible of field "CellWords" of card "World" of stack "TTRPG_Studio" & cr after tLog
+put "the model saw the kind: " & ("Test Mill" is in gMockSeen["world"]) & ", never the hidden gem: " & ("Secret Gem" is not in gMockSeen["world"]) & cr after tLog
+if "Secret Gem" is in gMockSeen["world"] or "Test Mill" is not in gMockSeen["world"] then add 1 to tFails
+put empty into gMockSeen["world"]
+dispatch "St.WorldWords" to stack "TTRPG_Studio"
+put "same cell again: remembered, no call " & (gMockSeen["world"] is empty) & cr after tLog
+
+-- 7 who is here, Add as character by hand
+put value("St.World()", stack "TTRPG_Studio") into tW
+put empty into tNPC
+repeat for each line tK in the keys of tW["npc"]
+   put tK into tNPC
+   exit repeat
+end repeat
+put tW["npc"][tNPC]["location"] into tLoc
+put TTRPG.World.CellOf(tLoc) into tCR
+dispatch "St.MapClick" to stack "TTRPG_Studio" with item 1 of tCR, item 2 of tCR, true
+put "here list: " & line 1 of field "HereList" of card "World" of stack "TTRPG_Studio" & cr after tLog
+dispatch "St.HerePick" to stack "TTRPG_Studio" with 1
+put "lore shown: " & (field "HereLore" of card "World" of stack "TTRPG_Studio" is not empty) & cr after tLog
+dispatch "St.HereAdd" to stack "TTRPG_Studio" with "hand"
+put "added by hand: " & (field "CharList" of card "Studio" of stack "TTRPG_Studio" contains TTRPG.World.Words(tW["npc"][tNPC]["role"])) & ", editor name " & field "c_name" of card "Studio" of stack "TTRPG_Studio" & cr after tLog
+if field "c_name" of card "Studio" of stack "TTRPG_Studio" is not TTRPG.World.Words(tW["npc"][tNPC]["role"]) then add 1 to tFails
+
+-- 8 Scene here: a New Scene from where you stand
+set the randomSeed to 3
+dispatch "St.SceneHere" to stack "TTRPG_Studio"
+put TTRPG.Scene() into tScene
+put "scene here: " & tScene["title"] & ", the maker got the cell: " & (TTRPG.World.Words(tW["locations"][tW["player"]["Player1"]["location"]]["kind"]) is in gMockSeen["make"]) & cr after tLog
+if tScene["title"] is not "The Mill Scene" then add 1 to tFails
+-- in a scene, look goes to the DM (clues), go still walks
+put "look" into field "Input" of card "Studio" of stack "TTRPG_Studio"
+dispatch "St.Send" to stack "TTRPG_Studio"
+put "look in a scene went to the DM: " & (field "Log" of card "Studio" of stack "TTRPG_Studio" contains "Dust hangs") & cr after tLog
+if not (field "Log" of card "Studio" of stack "TTRPG_Studio" contains "Dust hangs") then add 1 to tFails
+
+-- 9 Save World, Load World
+dispatch "St.WorldSave" to stack "TTRPG_Studio"
+put word 3 to -1 of field "WStatus" of card "World" of stack "TTRPG_Studio" into tSaved
+put value("St.World()", stack "TTRPG_Studio") into tW
+dispatch "St.WorldNew" to stack "TTRPG_Studio" with "Other", 3, 3
+dispatch "St.WorldLoad" to stack "TTRPG_Studio" with tSaved
+put value("St.World()", stack "TTRPG_Studio") into tW2
+put "saved + loaded: " & (there is a file tSaved) & ", same name " & (tW2["name"] is tW["name"]) & ", same map " & (TTRPG.World.MapLines(tW, "Player1") is TTRPG.World.MapLines(tW2, "Player1")) & cr after tLog
+if TTRPG.World.MapLines(tW, "Player1") is not TTRPG.World.MapLines(tW2, "Player1") then add 1 to tFails
+put "data folder used: " & Data.Root() & cr after tLog
+put "world ui test: " & tFails & " fails" after tLog
+return tLog
